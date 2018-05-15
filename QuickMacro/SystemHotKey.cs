@@ -37,20 +37,22 @@ namespace QuickMacro
         /// <param name="hotKey_id">热键ID</param>
         /// <param name="keyModifiers">组合键</param>
         /// <param name="key">热键</param>
-        public static void RegHotKey(IntPtr hwnd, int hotKeyId, EnumClass.KeyModifiers keyModifiers, Keys key)
+        public static bool RegHotKey(IntPtr hwnd, int hotKeyId, EnumClass.KeyModifiers keyModifiers, Keys key)
         {
             if (!RegisterHotKey(hwnd, hotKeyId, keyModifiers, key))
             {
                 int errorCode = Marshal.GetLastWin32Error();
                 if (errorCode == 1409)
                 {
-                    MessageBox.Show("热键被占用 ！");
+                    MessageBox.Show(string.Format("{0}+{1}热键被占用 ！", keyModifiers.ToString(), key.ToString()));
                 }
                 else
                 {
-                    MessageBox.Show(string.Format("{0}+{1}失败！错误代码：{2}",keyModifiers.ToString(), key.ToString(), errorCode));
+                    MessageBox.Show(string.Format("{0}+{1}注册失败！错误代码：{2}",keyModifiers.ToString(), key.ToString(), errorCode));
                 }
+                return false;
             }
+            return true;
         }
 
         /// <summary>
@@ -58,10 +60,10 @@ namespace QuickMacro
         /// </summary>
         /// <param name="hwnd">窗口句柄</param>
         /// <param name="hotKey_id">热键ID</param>
-        public static void UnRegHotKey(IntPtr hwnd, int hotKeyId)
+        public static bool UnRegHotKey(IntPtr hwnd, int hotKeyId)
         {
             //注销指定的热键
-            UnregisterHotKey(hwnd, hotKeyId);
+            return UnregisterHotKey(hwnd, hotKeyId);
         }
 
     }

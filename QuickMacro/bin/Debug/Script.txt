@@ -1,4 +1,4 @@
-NAME:
+﻿NAME:
 Default
 DETAILS:
 Rem go
@@ -15,37 +15,4 @@ Delay 10
 KeyUp W
 Delay 200
 Goto go
-################分########割########线##################
-NAME:
-新建脚本1
-DETAILS:
-Delay 920
-KeyPress LControlKey
-Delay 1917
-KeyPress W
-Delay 143
-KeyUp W
-Delay 646
-KeyPress W
-Delay 94
-KeyUp W
-Delay 551
-KeyPress W
-Delay 142
-KeyUp W
-Delay 526
-KeyPress W
-Delay 175
-KeyUp W
-Delay 478
-KeyPress W
-Delay 118
-KeyUp W
-Delay 1110
-KeyPress W
-Delay 135
-KeyUp W
-Delay 134
-KeyUp LControlKey
-Delay 241
 ################分########割########线##################

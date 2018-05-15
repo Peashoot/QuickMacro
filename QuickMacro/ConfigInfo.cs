@@ -26,6 +26,10 @@ namespace QuickMacro
         /// 缩放热键
         /// </summary>
         public static string ShowHideHotKey;
+        /// <summary>
+        /// 上一次使用的脚本名称
+        /// </summary>
+        public static string LastUseScript;
         #endregion
         #region 获取配置
         /// <summary>
@@ -68,6 +72,15 @@ namespace QuickMacro
             {
                 ShowHideHotKey = "None+F1";
                 UpdateAppConfig("ShowHideHotKey", ShowHideHotKey);
+            }
+            try
+            {
+                LastUseScript = Get_ConfigValue("LastUseScript")[0];
+            }
+            catch
+            {
+                LastUseScript = "Default";
+                UpdateAppConfig("LastUseScript", LastUseScript);
             }
         }
         #endregion

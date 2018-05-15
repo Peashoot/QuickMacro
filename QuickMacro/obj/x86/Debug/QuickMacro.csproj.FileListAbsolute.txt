@@ -6,3 +6,11 @@ C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\Q
 C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.csproj.GenerateResource.Cache
 C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.exe
 C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.pdb
+E:\TryToFindAnswer\QuickMacro\QuickMacro\bin\Debug\QuickMacro.exe.config
+E:\TryToFindAnswer\QuickMacro\QuickMacro\bin\Debug\QuickMacro.exe
+E:\TryToFindAnswer\QuickMacro\QuickMacro\bin\Debug\QuickMacro.pdb
+E:\TryToFindAnswer\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.SimpleQuickMacro.resources
+E:\TryToFindAnswer\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.Properties.Resources.resources
+E:\TryToFindAnswer\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.csproj.GenerateResource.Cache
+E:\TryToFindAnswer\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.exe
+E:\TryToFindAnswer\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.pdb

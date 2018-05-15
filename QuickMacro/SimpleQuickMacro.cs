@@ -34,6 +34,10 @@ namespace QuickMacro
         /// </summary>
         KeyboardHook keyHook;
         /// <summary>
+        /// 运行状态
+        /// </summary>
+        bool runState = false;
+        /// <summary>
         /// 录制状态
         /// </summary>
         bool recordState = false;
@@ -47,28 +51,22 @@ namespace QuickMacro
         /// <param name="e"></param>
         private void SimpleQuickMacro_Load(object sender, EventArgs e)
         {
-            ConfigInfo.Get_ConfigInfo();
             localScript.ReadScript();
-            initPage_Choose();
             initPage_Set();
-            cmb_Choose_c.SelectedItem = "Default";
-            txt_Details_c.Text = localScript.scriptList.Find(i => i.ScriptName == cmb_Choose_c.SelectedItem.ToString()).Details;
+            initPage_Choose();
             RegHotKeys();
         }
-        #endregion 
+        #endregion
         #region 注册热键
         /// <summary>
         /// 注册热键
         /// </summary>
         private void RegHotKeys()
         {
-            SystemHotKey.UnRegHotKey(this.Handle, 7001);
+            UnRegHotKeys();
             SystemHotKey.RegHotKey(this.Handle, 7001, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Activate_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Activate_Main.Text));
-            SystemHotKey.UnRegHotKey(this.Handle, 7002);
             SystemHotKey.RegHotKey(this.Handle, 7002, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Stop_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Stop_Main.Text));
-            SystemHotKey.UnRegHotKey(this.Handle, 7003);
             SystemHotKey.RegHotKey(this.Handle, 7003, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Start_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Start_Main.Text));
-            SystemHotKey.UnRegHotKey(this.Handle, 7004);
             SystemHotKey.RegHotKey(this.Handle, 7004, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Resize_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Resize_Main.Text));
         }
         #endregion
@@ -85,11 +83,21 @@ namespace QuickMacro
                     switch (m.WParam.ToString())
                     {
                         case "7001":
-                            dicInvoke.ReCompiler(txt_Details_c.Text.Trim());
-                            dicInvoke.StartThread();
+                            if (!runState)
+                            {
+                                dicInvoke.ReCompiler(txt_Details_c.Text.Trim());
+                                dicInvoke.StartThread(); 
+                                btn_Run.Text = "停止";
+                                runState = true;
+                            }
                             break;
                         case "7002":
-                            dicInvoke.EndThread();
+                            if (runState)
+                            {
+                                dicInvoke.EndThread();
+                                btn_Run.Text = "开始";
+                                runState = false;
+                            }
                             break;
                         case "7003":
                             BeginRecord();
@@ -196,11 +204,29 @@ namespace QuickMacro
         /// <param name="e"></param>
         private void btn_Quit_Click(object sender, EventArgs e)
         {
+            UnRegHotKeys();
+            this.Close();
+        }
+        /// <summary>
+        /// 窗口关闭
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SimpleQuickMacro_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            UnRegHotKeys();
+        }
+        #endregion
+        #region 注销热键
+        /// <summary>
+        /// 注销热键
+        /// </summary>
+        private void UnRegHotKeys()
+        {
             SystemHotKey.UnRegHotKey(this.Handle, 7001);
             SystemHotKey.UnRegHotKey(this.Handle, 7002);
             SystemHotKey.UnRegHotKey(this.Handle, 7003);
             SystemHotKey.UnRegHotKey(this.Handle, 7004);
-            this.Close();
         }
         #endregion
         #endregion
@@ -212,6 +238,33 @@ namespace QuickMacro
         private void initPage_Choose()
         {
             cmb_Choose_c.DataSource = localScript.scriptList.Select(i => i.ScriptName).ToArray();
+            cmb_Choose_c.SelectedItem = ConfigInfo.LastUseScript;
+            txt_Details_c.Text = localScript.scriptList.Find(i => i.ScriptName == cmb_Choose_c.SelectedItem.ToString()).Details;
+        }
+        #endregion
+        #region 运行停止
+        /// <summary>
+        /// 运行停止
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Run_Click(object sender, EventArgs e)
+        {
+            if (!runState)
+            {
+                dicInvoke.ReCompiler(txt_Details_c.Text.Trim());
+                dicInvoke.StartThread();
+                btn_Run.Text = "停止";
+                runState = true;
+                ConfigInfo.LastUseScript = cmb_Choose_c.Text;
+                ConfigInfo.UpdateAppConfig("LastUseScript", ConfigInfo.LastUseScript);
+            }
+            else
+            {
+                dicInvoke.EndThread();
+                btn_Run.Text = "开始";
+                runState = false;
+            }
         }
         #endregion
         #region 重新编辑
@@ -323,6 +376,7 @@ namespace QuickMacro
         {
             if (!recordState)
             {
+                UnRegHotKeys();
                 keyHook.Start();
                 btn_Record_r.Text = "停止";
                 recordState = true;
@@ -332,6 +386,7 @@ namespace QuickMacro
                 keyHook.Stop();
                 btn_Record_r.Text = "录制";
                 recordState = false;
+                RegHotKeys();
             }
         }
         #endregion
@@ -345,7 +400,7 @@ namespace QuickMacro
         {
             new DynamicInvoke().ReCompiler(txt_Details_r.Text.Trim("\r\n").Trim());
         }
-        #endregion 
+        #endregion
         #endregion
         #region 设置选项卡
         #region 设置选项卡初始化
@@ -354,6 +409,7 @@ namespace QuickMacro
         /// </summary>
         private void initPage_Set()
         {
+            ConfigInfo.Get_ConfigInfo();
             foreach (Control c in page_Set.Controls)
             {
                 if (c.GetType() == typeof(ComboBox))
@@ -402,6 +458,7 @@ namespace QuickMacro
             cmb_Start_Main.SelectedItem = "F2";
             cmb_Resize_Shift.SelectedItem = "None";
             cmb_Resize_Main.SelectedItem = "F1";
+            RegHotKeys();
         }
         #endregion
         #region 保存
@@ -412,11 +469,59 @@ namespace QuickMacro
         /// <param name="e"></param>
         private void btn_Save_s_Click(object sender, EventArgs e)
         {
-            ConfigInfo.UpdateAppConfig("ActivateHotKey", cmb_Activate_Shift.Text + '+' + cmb_Activate_Main.Text);
-            ConfigInfo.UpdateAppConfig("StopHotKey", cmb_Stop_Shift.Text + '+' + cmb_Stop_Main.Text);
-            ConfigInfo.UpdateAppConfig("RecordHotKey", cmb_Start_Shift.Text + '+' + cmb_Start_Main.Text);
-            ConfigInfo.UpdateAppConfig("ShowHideHotKey", cmb_Resize_Shift.Text + '+' + cmb_Resize_Main.Text);
-            RegHotKeys();
+            string[] strs;
+            UnRegHotKeys();
+            if (SystemHotKey.RegHotKey(this.Handle, 7001, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Activate_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Activate_Main.Text)))
+            {
+                ConfigInfo.UpdateAppConfig("ActivateHotKey", cmb_Activate_Shift.Text + '+' + cmb_Activate_Main.Text);
+            }
+            else
+            {
+                strs = ConfigInfo.ActivateHotKey.Split('+');
+                cmb_Activate_Shift.SelectedItem = strs[0];
+                cmb_Activate_Main.SelectedItem = strs[1];
+            }
+            if (SystemHotKey.RegHotKey(this.Handle, 7002, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Stop_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Stop_Main.Text)))
+            {
+                ConfigInfo.UpdateAppConfig("StopHotKey", cmb_Stop_Shift.Text + '+' + cmb_Stop_Main.Text);
+            }
+            else
+            {
+                strs = ConfigInfo.StopHotKey.Split('+');
+                cmb_Stop_Shift.SelectedItem = strs[0];
+                cmb_Stop_Main.SelectedItem = strs[1];
+            }
+            if (SystemHotKey.RegHotKey(this.Handle, 7003, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Start_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Start_Main.Text)))
+            {
+                ConfigInfo.UpdateAppConfig("RecordHotKey", cmb_Start_Shift.Text + '+' + cmb_Start_Main.Text);
+            }
+            else
+            {
+                strs = ConfigInfo.RecordHotKey.Split('+');
+                cmb_Start_Shift.SelectedItem = strs[0];
+                cmb_Start_Main.SelectedItem = strs[1];
+            }
+            if (SystemHotKey.RegHotKey(this.Handle, 7004, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Resize_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Resize_Main.Text)))
+            {
+                ConfigInfo.UpdateAppConfig("ShowHideHotKey", cmb_Resize_Shift.Text + '+' + cmb_Resize_Main.Text);
+            }
+            else
+            {
+                strs = ConfigInfo.ShowHideHotKey.Split('+');
+                cmb_Resize_Shift.SelectedItem = strs[0];
+                cmb_Resize_Main.SelectedItem = strs[1];
+            }
+        }
+        #endregion
+        #region 显示脚本构成的代码
+        /// <summary>
+        /// 显示脚本构成的代码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_ShowCode_Click(object sender, EventArgs e)
+        {
+
         }
         #endregion
         #endregion

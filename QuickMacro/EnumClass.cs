@@ -29,30 +29,6 @@ namespace QuickMacro
             None = 0,
             //
             // 摘要:
-            //     鼠标左按钮。
-            LButton = 1,
-            //
-            // 摘要:
-            //     鼠标右按钮。
-            RButton = 2,
-            //
-            // 摘要:
-            //     Cancel 键。
-            Cancel = 3,
-            //
-            // 摘要:
-            //     鼠标中按钮（三个按钮的鼠标）。
-            MButton = 4,
-            //
-            // 摘要:
-            //     第一个 X 鼠标按钮（五个按钮的鼠标）。
-            XButton1 = 5,
-            //
-            // 摘要:
-            //     第二个 X 鼠标按钮（五个按钮的鼠标）。
-            XButton2 = 6,
-            //
-            // 摘要:
             //     Backspace 键。
             Back = 8,
             //
@@ -62,7 +38,7 @@ namespace QuickMacro
             //
             // 摘要:
             //     The ESC key.
-            Escape = 27,
+            Esc = 27,
             //
             // 摘要:
             //     空格键。
@@ -102,15 +78,15 @@ namespace QuickMacro
             //
             // 摘要:
             //     Print Screen 键。
-            PrintScreen = 44,
+            Prt = 44,
             //
             // 摘要:
             //     The INS key.
-            Insert = 45,
+            Ins = 45,
             //
             // 摘要:
             //     The DEL key.
-            Delete = 46,
+            Del = 46,
             //
             // 摘要:
             //     The 0 key.
@@ -258,47 +234,47 @@ namespace QuickMacro
             //
             // 摘要:
             //     The 0 key on the numeric keypad.
-            NumPad0 = 96,
+            Num0 = 96,
             //
             // 摘要:
             //     The 1 key on the numeric keypad.
-            NumPad1 = 97,
+            Num1 = 97,
             //
             // 摘要:
             //     数字键盘上的 2 键。
-            NumPad2 = 98,
+            Num2 = 98,
             //
             // 摘要:
             //     数字键盘上的 3 键。
-            NumPad3 = 99,
+            Num3 = 99,
             //
             // 摘要:
             //     数字键盘上的 4 键。
-            NumPad4 = 100,
+            Num4 = 100,
             //
             // 摘要:
             //     数字键盘上的 5 键。
-            NumPad5 = 101,
+            Num5 = 101,
             //
             // 摘要:
             //     数字键盘上的 6 键。
-            NumPad6 = 102,
+            Num6 = 102,
             //
             // 摘要:
             //     数字键盘上的 7 键。
-            NumPad7 = 103,
+            Num7 = 103,
             //
             // 摘要:
             //     The 8 key on the numeric keypad.
-            NumPad8 = 104,
+            Num8 = 104,
             //
             // 摘要:
             //     The 9 key on the numeric keypad.
-            NumPad9 = 105,
+            Num9 = 105,
             //
             // 摘要:
             //     乘号键。
-            Multiply = 106,
+            Mul = 106,
             //
             // 摘要:
             //     加号键。
@@ -306,19 +282,19 @@ namespace QuickMacro
             //
             // 摘要:
             //     分隔符键。
-            Separator = 108,
+            Sep = 108,
             //
             // 摘要:
             //     减号键。
-            Subtract = 109,
+            Sub = 109,
             //
             // 摘要:
             //     句点键。
-            Decimal = 110,
+            Dec = 110,
             //
             // 摘要:
             //     除号键。
-            Divide = 111,
+            Div = 111,
             //
             // 摘要:
             //     The F1 key.
