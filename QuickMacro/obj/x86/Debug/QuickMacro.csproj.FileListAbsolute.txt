@@ -1,0 +1,8 @@
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\bin\Debug\QuickMacro.exe.config
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\bin\Debug\QuickMacro.exe
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\bin\Debug\QuickMacro.pdb
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.SimpleQuickMacro.resources
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.Properties.Resources.resources
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.csproj.GenerateResource.Cache
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.exe
+C:\Users\Administrator\Documents\Tencent Files\1106328900\FileRecv\Raptor code\QuickMacro\QuickMacro\obj\x86\Debug\QuickMacro.pdb
