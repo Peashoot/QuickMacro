@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="ConfigInfo.cs" />
     <Compile Include="DynamicInvoke.cs" />
     <Compile Include="EnumClass.cs" />

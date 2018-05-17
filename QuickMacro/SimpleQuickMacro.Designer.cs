@@ -32,8 +32,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SimpleQuickMacro));
             this.MainTab = new System.Windows.Forms.TabControl();
             this.page_Choose = new System.Windows.Forms.TabPage();
+            this.btn_Run = new System.Windows.Forms.Button();
             this.txt_Details_c = new System.Windows.Forms.TextBox();
             this.btn_Quit_c = new System.Windows.Forms.Button();
+            this.btn_CodeCSharp = new System.Windows.Forms.Button();
             this.btn_Delete_c = new System.Windows.Forms.Button();
             this.btn_Edit_c = new System.Windows.Forms.Button();
             this.cmb_Choose_c = new System.Windows.Forms.ComboBox();
@@ -42,10 +44,12 @@
             this.txt_Details_r = new System.Windows.Forms.TextBox();
             this.txt_FileName_r = new System.Windows.Forms.TextBox();
             this.btn_Quit_r = new System.Windows.Forms.Button();
+            this.btn_Code_Java = new System.Windows.Forms.Button();
             this.btn_Record_r = new System.Windows.Forms.Button();
             this.btn_Save_r = new System.Windows.Forms.Button();
             this.page_Set = new System.Windows.Forms.TabPage();
             this.btn_Quit_s = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.btn_Reset_s = new System.Windows.Forms.Button();
             this.btn_Save_s = new System.Windows.Forms.Button();
             this.cmb_Resize_Main = new System.Windows.Forms.ComboBox();
@@ -60,19 +64,27 @@
             this.lab_Start = new System.Windows.Forms.Label();
             this.lab_Stop = new System.Windows.Forms.Label();
             this.lab_Activate = new System.Windows.Forms.Label();
+            this.page_Exchange = new System.Windows.Forms.TabPage();
+            this.btn_Quit_e = new System.Windows.Forms.Button();
+            this.btn_Delete_e = new System.Windows.Forms.Button();
+            this.btn_Save_e = new System.Windows.Forms.Button();
+            this.btn_Clear_e = new System.Windows.Forms.Button();
+            this.txt_PrintText_e = new System.Windows.Forms.TextBox();
+            this.cmb_RecvKey_Main = new System.Windows.Forms.ComboBox();
+            this.cmb_RecvKey_Shift = new System.Windows.Forms.ComboBox();
+            this.lbl_PrintText = new System.Windows.Forms.Label();
+            this.lbl_RecvKey = new System.Windows.Forms.Label();
+            this.dgv_KeyTextPair = new System.Windows.Forms.DataGridView();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.menuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.btn_MaxSize = new System.Windows.Forms.ToolStripMenuItem();
             this.btn_Quit_m = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.btn_Run = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.btn_ShowCode = new System.Windows.Forms.Button();
             this.MainTab.SuspendLayout();
             this.page_Choose.SuspendLayout();
             this.page_Record.SuspendLayout();
             this.page_Set.SuspendLayout();
+            this.page_Exchange.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_KeyTextPair)).BeginInit();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -81,7 +93,7 @@
             this.MainTab.Controls.Add(this.page_Choose);
             this.MainTab.Controls.Add(this.page_Record);
             this.MainTab.Controls.Add(this.page_Set);
-            this.MainTab.Controls.Add(this.tabPage1);
+            this.MainTab.Controls.Add(this.page_Exchange);
             this.MainTab.Location = new System.Drawing.Point(4, 5);
             this.MainTab.Name = "MainTab";
             this.MainTab.SelectedIndex = 0;
@@ -94,7 +106,7 @@
             this.page_Choose.Controls.Add(this.btn_Run);
             this.page_Choose.Controls.Add(this.txt_Details_c);
             this.page_Choose.Controls.Add(this.btn_Quit_c);
-            this.page_Choose.Controls.Add(this.btn_ShowCode);
+            this.page_Choose.Controls.Add(this.btn_CodeCSharp);
             this.page_Choose.Controls.Add(this.btn_Delete_c);
             this.page_Choose.Controls.Add(this.btn_Edit_c);
             this.page_Choose.Controls.Add(this.cmb_Choose_c);
@@ -105,6 +117,16 @@
             this.page_Choose.TabIndex = 0;
             this.page_Choose.Text = "选择";
             this.page_Choose.UseVisualStyleBackColor = true;
+            // 
+            // btn_Run
+            // 
+            this.btn_Run.Location = new System.Drawing.Point(155, 6);
+            this.btn_Run.Name = "btn_Run";
+            this.btn_Run.Size = new System.Drawing.Size(43, 21);
+            this.btn_Run.TabIndex = 7;
+            this.btn_Run.Text = "运行";
+            this.btn_Run.UseVisualStyleBackColor = true;
+            this.btn_Run.Click += new System.EventHandler(this.btn_Run_Click);
             // 
             // txt_Details_c
             // 
@@ -125,6 +147,16 @@
             this.btn_Quit_c.Text = "退出";
             this.btn_Quit_c.UseVisualStyleBackColor = true;
             this.btn_Quit_c.Click += new System.EventHandler(this.btn_Quit_Click);
+            // 
+            // btn_CodeCSharp
+            // 
+            this.btn_CodeCSharp.Location = new System.Drawing.Point(104, 141);
+            this.btn_CodeCSharp.Name = "btn_CodeCSharp";
+            this.btn_CodeCSharp.Size = new System.Drawing.Size(43, 21);
+            this.btn_CodeCSharp.TabIndex = 3;
+            this.btn_CodeCSharp.Text = "代码";
+            this.btn_CodeCSharp.UseVisualStyleBackColor = true;
+            this.btn_CodeCSharp.Click += new System.EventHandler(this.btn_CodeCSharp_Click);
             // 
             // btn_Delete_c
             // 
@@ -163,7 +195,7 @@
             this.page_Record.Controls.Add(this.txt_Details_r);
             this.page_Record.Controls.Add(this.txt_FileName_r);
             this.page_Record.Controls.Add(this.btn_Quit_r);
-            this.page_Record.Controls.Add(this.button1);
+            this.page_Record.Controls.Add(this.btn_Code_Java);
             this.page_Record.Controls.Add(this.btn_Record_r);
             this.page_Record.Controls.Add(this.btn_Save_r);
             this.page_Record.Location = new System.Drawing.Point(4, 22);
@@ -209,6 +241,16 @@
             this.btn_Quit_r.Text = "退出";
             this.btn_Quit_r.UseVisualStyleBackColor = true;
             this.btn_Quit_r.Click += new System.EventHandler(this.btn_Quit_Click);
+            // 
+            // btn_Code_Java
+            // 
+            this.btn_Code_Java.Location = new System.Drawing.Point(104, 141);
+            this.btn_Code_Java.Name = "btn_Code_Java";
+            this.btn_Code_Java.Size = new System.Drawing.Size(43, 21);
+            this.btn_Code_Java.TabIndex = 9;
+            this.btn_Code_Java.Text = "代码";
+            this.btn_Code_Java.UseVisualStyleBackColor = true;
+            this.btn_Code_Java.Click += new System.EventHandler(this.btn_Code_Java_Click);
             // 
             // btn_Record_r
             // 
@@ -266,6 +308,16 @@
             this.btn_Quit_s.UseVisualStyleBackColor = true;
             this.btn_Quit_s.Click += new System.EventHandler(this.btn_Quit_Click);
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(104, 141);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(43, 21);
+            this.button2.TabIndex = 20;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // btn_Reset_s
             // 
             this.btn_Reset_s.Location = new System.Drawing.Point(55, 141);
@@ -284,7 +336,6 @@
             this.btn_Save_s.TabIndex = 19;
             this.btn_Save_s.Text = "保存";
             this.btn_Save_s.UseVisualStyleBackColor = true;
-            this.btn_Save_s.Click += new System.EventHandler(this.btn_Save_s_Click);
             // 
             // cmb_Resize_Main
             // 
@@ -402,6 +453,124 @@
             this.lab_Activate.TabIndex = 0;
             this.lab_Activate.Text = "启动脚本：";
             // 
+            // page_Exchange
+            // 
+            this.page_Exchange.Controls.Add(this.btn_Quit_e);
+            this.page_Exchange.Controls.Add(this.btn_Delete_e);
+            this.page_Exchange.Controls.Add(this.btn_Save_e);
+            this.page_Exchange.Controls.Add(this.btn_Clear_e);
+            this.page_Exchange.Controls.Add(this.txt_PrintText_e);
+            this.page_Exchange.Controls.Add(this.cmb_RecvKey_Main);
+            this.page_Exchange.Controls.Add(this.cmb_RecvKey_Shift);
+            this.page_Exchange.Controls.Add(this.lbl_PrintText);
+            this.page_Exchange.Controls.Add(this.lbl_RecvKey);
+            this.page_Exchange.Controls.Add(this.dgv_KeyTextPair);
+            this.page_Exchange.Location = new System.Drawing.Point(4, 22);
+            this.page_Exchange.Name = "page_Exchange";
+            this.page_Exchange.Padding = new System.Windows.Forms.Padding(3);
+            this.page_Exchange.Size = new System.Drawing.Size(204, 168);
+            this.page_Exchange.TabIndex = 3;
+            this.page_Exchange.Text = "替换";
+            this.page_Exchange.UseVisualStyleBackColor = true;
+            // 
+            // btn_Quit_e
+            // 
+            this.btn_Quit_e.Location = new System.Drawing.Point(153, 141);
+            this.btn_Quit_e.Name = "btn_Quit_e";
+            this.btn_Quit_e.Size = new System.Drawing.Size(43, 21);
+            this.btn_Quit_e.TabIndex = 19;
+            this.btn_Quit_e.Text = "退出";
+            this.btn_Quit_e.UseVisualStyleBackColor = true;
+            this.btn_Quit_e.Click += new System.EventHandler(this.btn_Quit_Click);
+            // 
+            // btn_Delete_e
+            // 
+            this.btn_Delete_e.Location = new System.Drawing.Point(104, 141);
+            this.btn_Delete_e.Name = "btn_Delete_e";
+            this.btn_Delete_e.Size = new System.Drawing.Size(43, 21);
+            this.btn_Delete_e.TabIndex = 18;
+            this.btn_Delete_e.Text = "删除";
+            this.btn_Delete_e.UseVisualStyleBackColor = true;
+            this.btn_Delete_e.Click += new System.EventHandler(this.btn_Delete_e_Click);
+            // 
+            // btn_Save_e
+            // 
+            this.btn_Save_e.Location = new System.Drawing.Point(55, 141);
+            this.btn_Save_e.Name = "btn_Save_e";
+            this.btn_Save_e.Size = new System.Drawing.Size(43, 21);
+            this.btn_Save_e.TabIndex = 17;
+            this.btn_Save_e.Text = "保存";
+            this.btn_Save_e.UseVisualStyleBackColor = true;
+            this.btn_Save_e.Click += new System.EventHandler(this.btn_Save_e_Click);
+            // 
+            // btn_Clear_e
+            // 
+            this.btn_Clear_e.Location = new System.Drawing.Point(6, 141);
+            this.btn_Clear_e.Name = "btn_Clear_e";
+            this.btn_Clear_e.Size = new System.Drawing.Size(43, 21);
+            this.btn_Clear_e.TabIndex = 16;
+            this.btn_Clear_e.Text = "清空";
+            this.btn_Clear_e.UseVisualStyleBackColor = true;
+            this.btn_Clear_e.Click += new System.EventHandler(this.btn_Clear_e_Click);
+            // 
+            // txt_PrintText_e
+            // 
+            this.txt_PrintText_e.Location = new System.Drawing.Point(67, 116);
+            this.txt_PrintText_e.Name = "txt_PrintText_e";
+            this.txt_PrintText_e.Size = new System.Drawing.Size(128, 21);
+            this.txt_PrintText_e.TabIndex = 15;
+            // 
+            // cmb_RecvKey_Main
+            // 
+            this.cmb_RecvKey_Main.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_RecvKey_Main.FormattingEnabled = true;
+            this.cmb_RecvKey_Main.Location = new System.Drawing.Point(134, 90);
+            this.cmb_RecvKey_Main.Name = "cmb_RecvKey_Main";
+            this.cmb_RecvKey_Main.Size = new System.Drawing.Size(61, 20);
+            this.cmb_RecvKey_Main.TabIndex = 14;
+            this.cmb_RecvKey_Main.Tag = "main";
+            // 
+            // cmb_RecvKey_Shift
+            // 
+            this.cmb_RecvKey_Shift.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_RecvKey_Shift.FormattingEnabled = true;
+            this.cmb_RecvKey_Shift.Location = new System.Drawing.Point(68, 90);
+            this.cmb_RecvKey_Shift.Name = "cmb_RecvKey_Shift";
+            this.cmb_RecvKey_Shift.Size = new System.Drawing.Size(60, 20);
+            this.cmb_RecvKey_Shift.TabIndex = 13;
+            this.cmb_RecvKey_Shift.Tag = "shift";
+            // 
+            // lbl_PrintText
+            // 
+            this.lbl_PrintText.AutoSize = true;
+            this.lbl_PrintText.Location = new System.Drawing.Point(6, 119);
+            this.lbl_PrintText.Name = "lbl_PrintText";
+            this.lbl_PrintText.Size = new System.Drawing.Size(65, 12);
+            this.lbl_PrintText.TabIndex = 2;
+            this.lbl_PrintText.Text = "输出文本：";
+            // 
+            // lbl_RecvKey
+            // 
+            this.lbl_RecvKey.AutoSize = true;
+            this.lbl_RecvKey.Location = new System.Drawing.Point(6, 93);
+            this.lbl_RecvKey.Name = "lbl_RecvKey";
+            this.lbl_RecvKey.Size = new System.Drawing.Size(65, 12);
+            this.lbl_RecvKey.TabIndex = 1;
+            this.lbl_RecvKey.Text = "接收按键：";
+            // 
+            // dgv_KeyTextPair
+            // 
+            this.dgv_KeyTextPair.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgv_KeyTextPair.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_KeyTextPair.Location = new System.Drawing.Point(2, 3);
+            this.dgv_KeyTextPair.Name = "dgv_KeyTextPair";
+            this.dgv_KeyTextPair.ReadOnly = true;
+            this.dgv_KeyTextPair.RowHeadersVisible = false;
+            this.dgv_KeyTextPair.RowTemplate.Height = 23;
+            this.dgv_KeyTextPair.Size = new System.Drawing.Size(199, 82);
+            this.dgv_KeyTextPair.TabIndex = 0;
+            this.dgv_KeyTextPair.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_KeyTextPair_CellClick);
+            // 
             // notifyIcon
             // 
             this.notifyIcon.ContextMenuStrip = this.menuStrip;
@@ -431,54 +600,6 @@
             this.btn_Quit_m.Text = "退出";
             this.btn_Quit_m.Click += new System.EventHandler(this.btn_Quit_Click);
             // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(204, 168);
-            this.tabPage1.TabIndex = 3;
-            this.tabPage1.Text = "预留";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // btn_Run
-            // 
-            this.btn_Run.Location = new System.Drawing.Point(155, 6);
-            this.btn_Run.Name = "btn_Run";
-            this.btn_Run.Size = new System.Drawing.Size(43, 21);
-            this.btn_Run.TabIndex = 7;
-            this.btn_Run.Text = "运行";
-            this.btn_Run.UseVisualStyleBackColor = true;
-            this.btn_Run.Click += new System.EventHandler(this.btn_Run_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(104, 141);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(43, 21);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(104, 141);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(43, 21);
-            this.button2.TabIndex = 20;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // btn_ShowCode
-            // 
-            this.btn_ShowCode.Location = new System.Drawing.Point(104, 141);
-            this.btn_ShowCode.Name = "btn_ShowCode";
-            this.btn_ShowCode.Size = new System.Drawing.Size(43, 21);
-            this.btn_ShowCode.TabIndex = 3;
-            this.btn_ShowCode.Text = "代码";
-            this.btn_ShowCode.UseVisualStyleBackColor = true;
-            this.btn_ShowCode.Click += new System.EventHandler(this.btn_ShowCode_Click);
-            // 
             // SimpleQuickMacro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -501,6 +622,9 @@
             this.page_Record.PerformLayout();
             this.page_Set.ResumeLayout(false);
             this.page_Set.PerformLayout();
+            this.page_Exchange.ResumeLayout(false);
+            this.page_Exchange.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_KeyTextPair)).EndInit();
             this.menuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -511,7 +635,6 @@
         private System.Windows.Forms.TabControl MainTab;
         private System.Windows.Forms.TabPage page_Choose;
         private System.Windows.Forms.TextBox txt_Details_c;
-        private System.Windows.Forms.Button btn_Edit_c;
         private System.Windows.Forms.ComboBox cmb_Choose_c;
         private System.Windows.Forms.TabPage page_Record;
         private System.Windows.Forms.Button btn_Quit_c;
@@ -542,11 +665,22 @@
         private System.Windows.Forms.ToolStripMenuItem btn_MaxSize;
         private System.Windows.Forms.ToolStripMenuItem btn_Quit_m;
         private System.Windows.Forms.Button btn_Compiler;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage page_Exchange;
         private System.Windows.Forms.Button btn_Run;
-        private System.Windows.Forms.Button btn_ShowCode;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btn_CodeCSharp;
+        private System.Windows.Forms.Button btn_Code_Java;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label lbl_PrintText;
+        private System.Windows.Forms.Label lbl_RecvKey;
+        private System.Windows.Forms.DataGridView dgv_KeyTextPair;
+        private System.Windows.Forms.Button btn_Edit_c;
+        private System.Windows.Forms.Button btn_Quit_e;
+        private System.Windows.Forms.Button btn_Delete_e;
+        private System.Windows.Forms.Button btn_Save_e;
+        private System.Windows.Forms.Button btn_Clear_e;
+        private System.Windows.Forms.TextBox txt_PrintText_e;
+        private System.Windows.Forms.ComboBox cmb_RecvKey_Main;
+        private System.Windows.Forms.ComboBox cmb_RecvKey_Shift;
 
     }
 }

@@ -17,7 +17,7 @@ namespace QuickMacro
             this.detailTextBox = detailTextBox;
         }
         /// <summary>
-        /// 
+        /// 记录脚本内容的文本框
         /// </summary>
         public TextBox detailTextBox;
         /// <summary>
@@ -148,6 +148,7 @@ namespace QuickMacro
                         oldwParam = wParam;
                         sw.Restart();
                     }
+
                 }
                 // 键盘抬起
                 if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP)

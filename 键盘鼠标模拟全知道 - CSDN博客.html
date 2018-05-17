@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://blog.csdn.net/wangpengk7788/article/details/76474471"/> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="referrer" content="always">
+    <meta name="description" content="一、基于windows 消息机制的鼠标键盘模拟
+
+ （一）、应用程序级模拟
+
+ （二）、系统级模拟
+
+        1、 用API函数keybd_event 模拟键盘事件
+
+        2、 SendInput函数模拟全局键盘鼠标事件
+
+        3、用全局钩子模拟键盘消息
+
+二、驱动级模拟
+
+********************************" />
+    <meta name="keywords" content="" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+    <meta name="shenma-site-verification" content="5a59773ab8077d4a62bf469ab966a63b_1497598848">
+    <script src="https://csdnimg.cn/release/phoenix/vendor/tingyun/tingyun-rum-blog.js"></script>
+
+    <link href="https://csdnimg.cn/public/favicon.ico" rel="SHORTCUT ICON">
+    <title>键盘鼠标模拟全知道 - CSDN博客</title>
+    
+            <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/detail-7697f17a56.min.css">
+        <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/themes/skin3-template/skin3-template-02ffddfbf5.min.css">
+
+    <script type="text/javascript">
+        var username = "wangpengk7788";
+        var blog_address = "https://blog.csdn.net/wangpengk7788";
+        var static_host = "https://csdnimg.cn/release/phoenix/";
+        var currentUserName = ""; 
+        var isShowAds = true;
+        var isOwner = false;
+        var loginUrl = "https://passport.csdn.net/account/login?from=https://blog.csdn.net/wangpengk7788/article/details/76474471"
+        var blogUrl = "https://blog.csdn.net/";
+        var curSkin = "skin3-template";
+    </script>
+    <script type="text/javascript">
+        // Traffic Stats of the entire Web site By baidu
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?6bcd52f51e9b3dce32bec4a3997715ac";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+        // Traffic Stats of the entire Web site By baidu end
+    </script>
+    <script src="https://csdnimg.cn/public/common/libs/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="https://csdnimg.cn/rabbit/exposure-click/main-1.0.6.js"></script>
+        <script type="text/javascript" src="https://csdnimg.cn/pubfooter/js/tracking-1.0.2.js" charset="utf-8"></script>
+        <link rel="stylesheet" href="https://csdnimg.cn/public/sandalstrap/1.2/css/sandalstrap.min.css"> 
+    <style>
+        .MathJax, .MathJax_Message, .MathJax_Preview{
+            display: none
+        }
+    </style>
+</head>
+<body>    
+    <link rel="stylesheet" href="https://csdnimg.cn/public/common/toolbar/content_toolbar_css/content_toolbar.css">
+    <script id="toolbar-tpl-scriptId" src="https://csdnimg.cn/public/common/toolbar/js/content_toolbar.js" type="text/javascript" domain="https://blog.csdn.net/"></script>
+    <script src="https://csdnimg.cn/public/sandalstrap/1.2/fonts/csdnc/csdnc.js"></script><link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/blog_code-c3a0c33d5c.css">
+<link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/vendor/pagination/paging.css">
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<script>
+    var recommendCount = 10;
+    recommendCount = recommendCount > 1 ? (recommendCount + (recommendCount>6 ? 2 : 1)) : recommendCount;
+    var articleTit = '键盘鼠标模拟全知道';
+    var ChannelId = 0;
+    var articleId = '76474471';
+    var commentscount = 0;
+    var islock = false;
+    var curentUrl = "https://blog.csdn.net/wangpengk7788/article/details/76474471";
+    var myUrl = "https://my.csdn.net/";
+    //1禁止评论，2正常
+    var commentAuth = 2;
+    //百度搜索
+    var baiduKey = "%E6%A8%A1%E6%8B%9F%E7%9C%9F%E9%94%AE%E7%9B%98";
+    var needInsertBaidu = false;
+</script>
+
+<header>
+	<div class="container d-flex clearfix">
+		<div class="title-box">
+			<h6 class="title-blog">
+				<a href="https://blog.csdn.net/wangpengk7788">春暖花开</a>
+			</h6>
+			<p class="description">我想要一所房子 面朝大海 春暖花开</p>
+		</div>
+		<div class="opt-box d-flex justify-content-end">
+			<a class="btn btn-sm" href="https://blog.csdn.net/wangpengk7788/rss/list">
+					<svg class="icon" aria-hidden="true">
+						<use xlink:href="#csdnc-rss"></use>
+					</svg>RSS订阅</a>
+					</div>
+	</div>
+</header><script src="https://dup.baidustatic.com/js/ds.js"></script>
+<div class="container clearfix pt0" id="mainBox">
+    <aside>
+		    <div id="asideProfile" class="aside-box">
+    <h3 class="aside-title">个人资料</h3>
+    <div class="profile-intro d-flex">
+        <div class="avatar-box d-flex justify-content-center flex-column">
+            <a href="https://blog.csdn.net/wangpengk7788">
+                <img src="https://avatar.csdn.net/2/A/6/3_wangpengk7788.jpg" class="avatar_pic">
+            </a>
+        </div>
+        <div class="user-info d-flex justify-content-center flex-column">
+            <p class="name csdn-tracking-statistics tracking-click" data-mod="popu_379">
+                <a href="https://blog.csdn.net/wangpengk7788" target="_blank" class="text-truncate" id="uid">wangpengk7788</a>
+            </p>
+                    </div>
+                <div class="opt-box d-flex justify-content-center flex-column">
+            <span  class="csdn-tracking-statistics tracking-click" data-mod="popu_379">
+                                <a class="btn btn-sm btn-red-hollow" href="https://passport.csdn.net/account/login?from=https://blog.csdn.net/wangpengk7788/article/details/76474471" target="_self">关注</a>
+                            </span>
+            
+        </div>
+            </div>
+    <div class="data-info d-flex item-tiling">
+        <dl class="text-center" title="32">
+            <dt>原创</dt>
+            <dd><span class="count">32</span></dd>
+        </dl>
+        <dl class="text-center" title="15">
+            <dt>粉丝</dt>
+            <dd><span class="count" id="fan">15</span></dd>
+        </dl>
+        <dl class="text-center" title="4">
+            <dt>喜欢</dt>
+            <dd><span class="count">4</span></dd>
+        </dl>
+        <dl class="text-center" title="2">
+            <dt>评论</dt>
+            <dd><span class="count">2</span></dd>
+        </dl>
+    </div>
+    <div class="grade-box clearfix">
+        <dl>
+            <dt>等级：</dt>
+            <dd>
+                <a href="https://blog.csdn.net/home/help.html#level" title="3级,点击查看等级说明" target="_blank">
+                    <svg class="icon icon-level" aria-hidden="true">
+                        <use xlink:href="#csdnc-bloglevel-3"></use>
+                    </svg>
+                </a>
+            </dd>
+        </dl>
+        <dl>
+            <dt>访问：</dt>
+            <dd title="33417">
+                3万+            </dd>
+        </dl>
+        <dl>
+            <dt>积分：</dt>
+            <dd title="708">
+                708            </dd>
+        </dl>
+        <dl title="73857">
+            <dt>排名：</dt>
+            <dd>7万+</dd>
+        </dl>
+    </div>
+        <div class="badge-box d-flex">
+        <span>勋章：</span>
+                        <a class="icon-badge" title="持之以恒">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#csdnc-m-lasting"></use>
+            </svg>
+            <div class="icon-arrow"></div>
+            <div class="grade-detail-box item2">
+                <div class="pos-box">
+                    <div class="left-box d-flex justify-content-center align-items-center flex-column">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#csdnc-m-lasting"></use>
+                        </svg>
+                        <p>持之以恒</p>
+                    </div>
+                    <div class="right-box d-flex justify-content-center align-items-center">
+                        授予每个自然月内发布4篇或4篇以上原创或翻译IT博文的用户。不积跬步无以至千里，不积小流无以成江海，程序人生的精彩需要坚持不懈地积累！
+                    </div>
+                </div>
+            </div>
+        </a>
+                            </div>
+    </div>		    <div class="csdn-tracking-statistics mb8 box-shadow" data-pid="blog" data-mod="popu_4" style="height:250px;">
+    <div class="aside-content text-center" id="cpro_u2734133">
+        <!-- 投放代码 -->
+        <script type="text/javascript" src="//cee1.iteye.com/lgyyovfyh.js"></script>
+    </div>
+</div>
+		    <div id="asideNewArticle" class="aside-box">
+    <h3 class="aside-title">最新文章</h3>
+    <div class="aside-content">
+        <ul class="inf_list clearfix csdn-tracking-statistics tracking-click" data-mod="popu_382">
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wangpengk7788/article/details/56496003" target="_blank">读QT5.7源码（七）QObjectData  和 QObjectPrivate</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wangpengk7788/article/details/56354055" target="_blank">读QT5.7源码（六）QMetaClassInfo  和  QMetaProperty</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wangpengk7788/article/details/56341037" target="_blank">读QT5.7源码（五）QMetaEnum</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wangpengk7788/article/details/56291180" target="_blank">读QT5.7源码（四）QMetaMethod   和 QMetaMethodPrivate</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/wangpengk7788/article/details/56115328" target="_blank">读QT5.7源码（七）QMetaObjectPrivate</a>
+            </li>
+                    </ul>
+    </div>
+</div>
+		    		    <div id="asideCategory" class="aside-box flexible-box">
+    <h3 class="aside-title">个人分类</h3>
+    <div class="aside-content">
+        <ul>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/1514145">
+                    VC                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/1514147">
+                    Driver                    <span class="count float-right">3篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/1514149">
+                    ASM                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/1514153">
+                    C/C++                    <span class="count float-right">8篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/6640430">
+                    VS &amp;amp;&amp;amp; MFC                    <span class="count float-right">8篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/6640431">
+                    Windows                    <span class="count float-right">11篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/6665307">
+                    Windows核心编程 笔记                    <span class="count float-right">27篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/6687371">
+                    计算机原理                    <span class="count float-right">11篇</span>
+                </a>
+            </li>
+                        <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/category/6728910">
+                    QT                    <span class="count float-right">10篇</span>
+                </a>
+            </li>
+                    </ul>
+    </div>
+        <p class="text-center">
+        <a class="btn btn-link-blue flexible-btn" data-fbox="aside-archive">展开</a>
+    </p>
+    </div>
+		    <div id="asideArchive" class="aside-box flexible-box">
+    <h3 class="aside-title">归档</h3>
+    <div class="aside-content">
+        <ul class="archive-list">
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2017/08">
+                    2017年8月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2017/02">
+                    2017年2月                    <span class="count float-right">26篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2017/01">
+                    2017年1月                    <span class="count float-right">32篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2016/12">
+                    2016年12月                    <span class="count float-right">12篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2014/07">
+                    2014年7月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2013/08">
+                    2013年8月                    <span class="count float-right">4篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/wangpengk7788/article/month/2013/07">
+                    2013年7月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                    </ul>
+    </div>
+        <p class="text-center">
+        <a class="btn btn-link-blue flexible-btn" data-fbox="aside-archive">展开</a>
+    </p>
+    </div>
+		    <div id="asideHotArticle" class="aside-box">
+	<h3 class="aside-title">热门文章</h3>
+	<div class="aside-content">
+		<ul class="hotArticle-list csdn-tracking-statistics tracking-click" data-mod="popu_521">
+							<li>
+					<a href="https://blog.csdn.net/wangpengk7788/article/details/55844062">读QT5.7源码（二）QByteArray</a>
+					<p class="read">阅读量：<span>1980</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wangpengk7788/article/details/54287966">Windows核心编程笔记（七） 线程调度 优先级 关联性</a>
+					<p class="read">阅读量：<span>1194</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wangpengk7788/article/details/54231739">Windows核心编程笔记（五） Job与进程的关系</a>
+					<p class="read">阅读量：<span>1191</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wangpengk7788/article/details/54918233">Windows核心编程笔记（十七） 线程局部储存</a>
+					<p class="read">阅读量：<span>1125</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/wangpengk7788/article/details/55826452">读QT5.7源码（一）QArrayData QTypedArrayData</a>
+					<p class="read">阅读量：<span>1004</span></p>
+				</li>
+					</ul>
+	</div>
+</div>
+		    <div id="asideNewComments" class="aside-box">
+    <h3 class="aside-title">最新评论</h3>
+    <div class="aside-content">
+        <ul class="newcomment-list">
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wangpengk7788/article/details/54287947#comments">Windows系统时钟间隔</a>
+                <p class="comment">
+                    <a href="https://my.csdn.net/sxz880925" class="user-name" target="_blank">sxz880925</a>：我想实现最低0.5的时钟间隔，在开发过程中发现设置0.5时不生效，设置为1则可以生效，这里有什么需...                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wangpengk7788/article/details/56291180#comments">读QT5.7源码（四）QMetaM...</a>
+                <p class="comment">
+                    <a href="https://my.csdn.net/LiQian06336" class="user-name" target="_blank">LiQian06336</a>：厉害，佩服                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/wangpengk7788/article/details/53595107#comments">windows内核情景分析--窗口...</a>
+                <p class="comment">
+                    <a href="https://my.csdn.net/ghphg" class="user-name" target="_blank">ghphg</a>：写的太棒了！非常感谢
+有个疑问，你这是分析的windows泄露的源码，还是ReactOS 的源码？                </p>
+            </li>
+                    </ul>
+    </div>
+</div>
+		<div id="asideFooter">
+			
+		<div class="aside-box">
+						<script type="text/javascript" src="//cee1.iteye.com/avneunkwb.js"></script>
+					</div>
+				<div class="aside-box">
+			<div class="persion_article">
+			</div>
+		</div>
+	</div>
+</aside>
+<script src="https://csdnimg.cn/pubfooter/js/publib_footer-1.0.3.js?20180309" data-isfootertrack="false" type="text/javascript"></script>
+<script>
+	$("a.flexible-btn").click(function(){
+		$(this).parents('div.aside-box').removeClass('flexible-box');
+		$(this).remove();
+	})
+</script>
+    <main>
+        <div class="blog-content-box">
+	<div class="article-title-box">
+			<span class="article-type type-2 float-left">转</span>		<h6 class="title-article">键盘鼠标模拟全知道</h6>
+	</div>
+	<div class="article-info-box">
+		<div class="article-bar-top d-flex">
+												<span class="time">2017年08月01日 02:23:05</span>
+			<div class="float-right">
+				<span class="read-count">阅读数：633</span>
+											</div>
+		</div>
+	</div>
+	<article>
+		<div id="article_content clearfix" class="article_content csdn-tracking-statistics" data-pid="blog"  data-mod=popu_307  data-dsm = "post" >
+                    <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/htmledit_views-0a60691e80.css" />
+            <div class="htmledit_views">
+                
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<br /></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">一、基于windows 消息机制的鼠标键盘模拟</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;"> <span style="margin:0px;padding:0px;">（一）、应用程序级模拟</span></span></span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;"> （二）、系统级模拟</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;">        1、 用API函数keybd_event </span>模拟键盘事件</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;">        <span style="margin:0px;padding:0px;">2、 SendInput函数模拟全局键盘鼠标事件</span></span></span></span></span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;"><span style="margin:0px;padding:0px;">        3、用全局钩子模拟键盘消息</span></span></span></span></span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">二、驱动级模拟</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">*******************************************************************************************</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">一、基于windows 消息机制的鼠标键盘模拟</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+我们怎样才能用Delphi来写一个程序，用来代替人们按键的方法呢？那就让我们来先了解一下windows中响应键盘事件的机制。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+     当用户按下键盘上的一个键时，键盘内的芯片会检测到这个动作，并把这个信号传送到计算机。如何区别是哪一个键被按下了呢？键盘上的所有按键都有一个编码，称作键盘扫描码。当你按下一个键时，这个键的扫描码就被传给系统。扫描码是跟具体的硬件相关的，同一个键，在不同键盘上的扫描码有可能不同。键盘控制器就是将这个扫描码传给计算机，然后交给键盘驱动程序。键盘驱动程序会完成相关的工作，并把这个扫描码转换为键盘虚拟码。什么是虚拟码呢？因为扫描码与硬件相关，不具有通用性，为了统一键盘上所有键的编码，于是就提出了虚拟码概念。无论什么键盘，同一个按键的虚拟码总是相同的，这样程序就可以识别了。简单点说，虚拟码就是我们经常可以看到的像VK_A,VK_B这样的常数，比如键A的虚拟码是65，写成16进制就是&amp;H41，注意，人们经常用16进制来表示虚拟码。当键盘驱动程序把扫描码转换为虚拟码后，会把这个键盘操作的扫描码和虚拟码还有其它信息一起传递给操作系统。然后操作系统则会把这些信息封装在一个消息中，并把这个键盘消息插入到消息列队。最后，要是不出意外的话，这个键盘消息最终会被送到当前的活动窗口那里，活动窗口所在的应用程序接收到这个消息后，就知道键盘上哪个键被按下，也就可以决定该作出什么响应给用户了。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+这个过程可以简单的如下表示：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">用户按下键盘上的一个键 &gt;&gt;&gt;&gt;&gt; 键盘控制器就把这个键的扫描码传给计算机，然后交给键盘驱动程序  &gt;&gt;&gt;&gt;&gt; 键盘驱动程序会把这个扫描码转换为键盘虚拟码(VK_A,VK_B这样的常数，比如键A的虚拟码是65，写成16进制就是&amp;H41)传给操作系统  &gt;&gt;&gt;&gt;&gt;  操操作系统则会把这些信息封装在一个消息中，并把这个键盘消息插入到消息列队  &gt;&gt;&gt;&gt;&gt; 键盘消息被发送到当前活动窗口</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;"> </span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+明白了这个过程，我们就可以编程实现在其中的某个环节来模拟键盘操作了。在Delphi中，有多种方法可以实现键盘模拟，我们就介绍几种比较典型的。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ <span style="margin:0px;padding:0px;">（一）、应用程序级模拟(只针对某个程序，我称之为局部模拟）</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+windows提供了几个这样的API函数可以实现直接向目标程序发送消息的功能，常用的有SendMessage和PostMessage，它们的区别是PostMessage函数直接把消息仍给目标程序就不管了，而SendMessage把消息发出去后，还要等待目标程序返回些什么东西才好。这里要注意的是，模拟键盘消息一定要用PostMessage函数才好，用SendMessage是不正确的(因为模拟键盘消息是不需要返回值的，不然目标程序会没反应)，切记切记！</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage函数的delphi声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage(</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+hWnd: HWND;                      {目标程序上某个控件的句柄}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Msg: UINT;                         {消息的类型}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+wParam: WPARAM;                  {32位指定附加的消息特定的信息}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lParam: LPARAM                    {32位指定附加的消息特定的信息}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+): BOOL;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+参数hwnd 是你要发送消息的目标程序上某个控件的句柄，参数Msg 是消息的类型，表示你要发送什么样的消息，最后wParam 和lParam这两个参数是随消息附加的数据，具体内容要由消息决定。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+再来看看Msg 这个参数，要模拟按键就靠这个了。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">键盘消息</span>常用的有如下几个：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+WM_KEYDOWN      表示一个普通键被按下</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+WM_KEYUP          表示一个普通键被释放</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+WM_SYSKEYDOWN   表示一个系统键被按下，比如Alt键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+WM_SYSKEYUP       表示一个系统键被释放，比如Alt键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+如果你确定要发送以上几个键盘消息，那么再来看看如何确定键盘消息中的wParam 和lParam 这两个参数。在一个键盘消息中，wParam 参数的含义较简单，它表示你要发送的键盘事件的按键虚拟码，比如你要对目标程序模拟按下A键，那么wParam 参数的值就设为VK_A ,至于lParam 这个参数就比较复杂了，因为它包含了多个信息，一般可以把它设为0。即</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage (MyHwnd, WM_KEYDOWN, key, 0);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+但是如果你想要你的模拟更真实一些，那么建议你还是设置一下这个参数。那么我们就详细了解一下lParam 吧。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lParam 是一个32 bit的参数，它在内存中占4个字节，写成二进制就是</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+00000000 00000000 00000000 00000000</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+一共是32位，我们从右向左数，假设最右边那位为第0位(注意是从0而不是从1开始计数)，最左边的就是第31位。那么该参数的</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+0-15位表示键的发送次数等扩展信息，</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+16-23位为按键的扫描码，</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+24-31位表示是按下键还是释放键。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+大家一般习惯写成16进制的，那么就应该是</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+&amp;H00 00 00 00 ，</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+第0-15位一般为&amp;H0001，如果是按下键，那么24-31位为&amp;H00，释放键则为&amp;HC0,</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+那么16-23位的扫描码怎么会得呢？这需要用到一个API函数MapVirtualKey，这个函数可以将虚拟码转换为扫描码，或将扫描码转换为虚拟码，还可以把虚拟码转换为对应字符的ASCII码。它的delphi 声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+MapVirtualKey(</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+uCode: UINT;                        {key code, scan code or virtual key}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+uMapType: UINT                     {flags for translation mode}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+): UINT;                             {returns translated key code}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+参数uCode 表示待转换的码，参数uMapType 表示从什么转换为什么，如果是虚拟码转扫描码，则uMapType 设置为0，如果是虚拟扫描码转虚拟码，则wMapType 设置为1，如果是虚拟码转ASCII码，则uMapType 设置为2.相信有了这些，我们就可以构造键盘事件的lParam参数了。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+下面给出一个构造lParam参数的函数：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function VKB_param(VirtualKey:Integer;flag:Integer):Integer; //函数名</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+s,Firstbyte,Secondbyte:String;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+S_code:Integer;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+if flag=1 then  //按下键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Firstbyte :='00'</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+else         //弹起键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  begin </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Firstbyte :='C0'</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+S_code:= MapVirtualKey(VirtualKey, 0);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Secondbyte:='00'+inttostr(s_code);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Secondbyte:=copy(Secondbyte,Length(Secondbyte)-1,2);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+s:='$'+Firstbyte + Secondbyte + '0001'; </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Result:=strtoint(s);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+End;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+使用按键的方法：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ 说明：key为键值，如1键[不是数字键的1]的值是$31，flag传递的是按键状态，1是按下，0是弹起。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lparam := VKB_param(key, 1);      {按下键}  </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage (MyHwnd, WM_KEYDOWN, key, lParam);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lParam := VKB_param(key, 0);      {松开键}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage (MyHwnd, WM_KEYUP, key, lParam);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+   hwnd, lparam:Cardinal;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ hwnd:=FindWindowEx(FindWindow(nil,'无标题 - 记事本'),0,'edit',nil); </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lparam := VKB_param(97, 1);      {按下键}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage (hwnd,WM_KEYDOWN,vk_F3,lparam) ; //按下F3键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+//PostMessage (hwnd,WM_CHAR,97,lparam);        //输入字符A （edit控件接收字符）</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lParam := VKB_param(key, 0);      {松开键}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+PostMessage (hwnd,WM_KEYUP,vk_F3,lparam);   //释放F3键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">模拟鼠标点击</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">Var</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">P1：Tpoint;</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">Lparam:integer;</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">begin</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">GetCursorPos(P1); // 获取屏幕坐标</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">   P1.X:= P1.X+100;</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">   P1.Y:=P1.Y+100;</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">lparam:=p1.X+ p1.Y shl 16;</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">sendmessage(h,messages.WM_LBUTTONDOWN ,0,lparam);// 按下鼠标左键</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">sendmessage(h,messages.WM_LBUTTONUP  ,0, lparam); //抬起鼠标左键</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">End;</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">（二）、系统级模拟（针对所有程序的窗口，我称之为全局模拟）</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+模拟全局键盘消息常见的可以有以下一些方法：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">1、 用API函数keybd_event</span>，这个函数可以用来模拟一个键盘事件</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event(</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+bVk: Byte;                       {virtual-key code}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+bScan: Byte;                      {scan-code}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+dwFlags: DWORD;                {option flags}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+dwExtraInfo: DWORD             {additional information about the key}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+);                               {this procedure does not return a value}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event(VK_A, 0, 0, 0)   '按下A键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_A, 0, KEYEVENTF_KEYUP, 0)    '释放A键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+注意有时候按键的速度不要太快，否则会出问题，可以用API函数Sleep来进行延时，delphi声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Sleep(</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+dwMilliseconds: DWORD                {specifies the number of milliseconds to pause}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+);      </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+参数dwMilliseconds表示延时的时间，以毫秒为单位。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+那么如果要模拟按下功能键怎么做呢？比如要按下Ctrl+C实现拷贝这个功能，可以这样：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_Ctrl, 0, 0, 0 );   //按下Ctrl键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_C, 0, 0, 0);       //按下C键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Sleep(500 );          //延时500毫秒</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_C, 0, KEYEVENTF_KEYUP, 0 );   //释放C键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_Ctrl, 0, KEYEVENTF_KEYUP, 0 );   //释放Ctrl键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+好了，现在你可以试试是不是可以骗过目标程序了，这个函数对大部分的窗口程序都有效，可是仍然有一部分游戏对它产生的键盘事件熟视无睹，这时候，你就要用上bScan这个参数了。一般的，bScan都传0，但是如果目标程序是一些DirectX游戏，那么你就需要正确使用这个参数传入扫描码，用了它可以产生正确的硬件事件消息，以被游戏识别。这样的话，就可以写成这样：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_A, MapVirtualKey(VK_A, 0), 0, 0);   //按下A键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+keybd_event (VK_A, MapVirtualKey(VK_A, 0), KEYEVENTF_KEYUP, 0 );   //释放A键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+以上就是用keybd_event函数来模拟键盘事件。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+模拟按下鼠标左键</p>
+<p align="left" style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+mouse_event(MOUSEEVENTF_LEFTDOWN,0,0,0,0);//鼠标左键按下mouse_event(MOUSEEVENTF_LEFTUP,0,0,0,0);//鼠标左键弹起</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">2、 SendInput函数也可以模拟全局键盘鼠标事件</span>。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+SendInput可以直接把一条消息插入到消息队列中，算是比较底层的了。  </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+SendInput的参数其实很简单，在Windows.pas就有函数的声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function SendInput (</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+cInputs: UINT;                   pInputs中记录数组的元素数目</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var pInputs: TInput;               TInput类型记录数组的第1个元素</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+cbSize: Integer                   定义TInput的大小，一般为SizeOf(TInput)</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+): UINT; stdcall;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　cInputs：定义pInputs中记录数组的元素数目。pInputs：TInput类型记录数组的第1个元素。每个元素代表插人到系统消息队列的键盘或鼠标事件。cbSize：定义TInput的大小，一般为SizeOf(TInput)。函数返回成功插入系统消息队列中事件的数目，失败返回0。调用SendInput关键的就是要搞清楚它的几个记录结构的意思，在Windows.pas中对TInput的声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  tagINPUT = packed record</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Itype: DWORD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    case Integer of</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      0: (mi: TMouseInput);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      1: (ki: TKeybdInput);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      2: (hi: THardwareInput);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  TInput = tagINPUT;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　其中mi、ki、hi是3个共用型的记录结构，Itype指出记录结构中所使用的类型，它有3个值。INPUT_MOUSE：表示使用mi记录结构，忽略ki和hi；INPUT_KEYBOARD：表示使用ki记录结构，忽略mi和hi。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">（1）、键盘模拟</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　TKeybdInput记录结构的声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  tagKEYBDINPUT = packed record</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    wVk: WORD;                   是将要操作的按键的虚键码</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    wScan: WORD;                  是安全码，一般不用</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    dwFlags: DWORD;              指定键盘所进行的操作，为0时表示按下某键，KEYEVENTF_KEYUP表示放开某键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    time: DWORD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    dwExtraInfo: DWORD;  是扩展信息，可以使用API函数GetMessageExtraInfo的返回值</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  TKeybdInput = tagKEYBDINPUT;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　其中wVk是将要操作的按键的虚键码。wScan是安全码，一般不用。dwFlags指定键盘所进行的操作，为0时表示按下某键，KEYEVENTF_KEYUP表示放开某键。time是时间戳，可以使用API函数GetTickCount的返回值。dwExtraInfo是扩展信息，可以使用API函数GetMessageExtraInfo的返回值。例如击键“A”的程序如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure KeyPressA;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Inputs : array [0..1] of TInput;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Inputs[0].Itype:=INPUT_KEYBOARD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    with Inputs[0].ki do</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        wVk:=VK_A;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        wScan:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwFlags:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        time:=GetTickCount;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwExtraInfo:=GetMessageExtraInfo;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Inputs[1].Itype:=INPUT_KEYBOARD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    with Inputs[1].ki do</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        wVk:=VK_A;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        wScan:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwFlags:=KEYEVENTF_KEYUP;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        time:=GetTickCount;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwExtraInfo:=GetMessageExtraInfo;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    SendInput(2,Inputs[0],SizeOf(TInput));</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　注意：在Windows.pas单元中并没有字母和数字的虚键码的声明，在我写的SIMouseKeyboard.pas单元文件中对所有的虚键码进行了重新声明，包含了字母、数字和标点符号。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">（2）、鼠标模拟</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　TMouseInput记录结构的声明如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  tagMOUSEINPUT = packed record</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    dx: Longint;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    dy: Longint;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    mouseData: DWORD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    dwFlags: DWORD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    time: DWORD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    dwExtraInfo: DWORD;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  TMouseInput = tagMOUSEINPUT;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　其中dx、dy是鼠标移动时的坐标差（不是象素单位），在鼠标移动时有效。mouseData是鼠标滚轮滚动值，在滚动鼠标滚轮时有效。当mouseData小于0时向下滚动，当mouseData大于0时向上滚动，mouseData的绝对值一般设为120。dwFlags指定鼠标所进行的操作，例如，MOUSEEVENTF_MOVE表示移动鼠标，MOUSEEVENTF_LEFTDOWN表示按下鼠标左键，MOUSEEVENTF_LEFTUP表示放开鼠标左键。time是时间戳，可以使用API函数GetTickCount的返回值。dwExtraInfo是扩展信息，可以使用API函数GetMessageExtraInfo的返回值。例如单击鼠标左键的程序如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure MouseClick;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Inputs : array [0..1] of TInput;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Inputs[0].Itype:=INPUT_MOUSE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    with Inputs[0].mi do</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dx:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dy:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        mouseData:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwFlags:=MOUSEEVENTF_LEFTDOWN;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        time:=GetTickCount;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwExtraInfo:=GetMessageExtraInfo;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Inputs[1].Itype:=INPUT_MOUSE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    with Inputs[1].mi do</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dx:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dy:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        mouseData:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwFlags:=MOUSEEVENTF_LEFTUP;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        time:=GetTickCount;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwExtraInfo:=GetMessageExtraInfo;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    SendInput(2,Inputs[0],SizeOf(TInput));</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　鼠标的移动总是很麻烦，上面的dx、dy不是以象素为单位的，而是以鼠标设备移动量为单位的，它们之间的比值受鼠标移动速度设置的影响。具体的解决方法我已经在《Delphi下利用WinIo模拟鼠标键盘详解》一文中进行了讨论，这里不再重复。dwFlags可以设置一个MOUSEEVENTF_ABSOLUTE标志，这使得可以用另外一种方法移动鼠标。当dwFlags设置了MOUSEEVENTF_ABSOLUTE标志，dx、dy为屏幕坐标值，表示将鼠标移动到dx，dy的位置。但是这个坐标值也不是以象素为单位的。这个值的范围是0到65535（$FFFF），当dx等于0、dy等于0时表示屏幕的最左上角，当dx等于65535、dy等于65535时表示屏幕的最右下角，相当于将屏幕的宽和高分别65536等分。API函数GetSystemMetrics(SM_CXSCREEN)可以返回屏幕的宽度，函数GetSystemMetrics(SM_CYSCREEN)可以返回屏幕的高度，利用屏幕的宽度和高度就可以将象素坐标换算成相应的dx、dy。注意：这种换算最多会出现1象素的误差。例如：将鼠标指针移动到屏幕150,120坐标处的程序如下：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure MouseMove;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Input : TInput;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Input.Itype:=INPUT_MOUSE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    with Input.mi do</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dx:=($FFFF div (GetSystemMetrics(SM_CXSCREEN)-1)) * 150;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dy:=($FFFF div (GetSystemMetrics(SM_CYSCREEN)-1)) * 120;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        mouseData:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwFlags:=MOUSEEVENTF_MOVE or MOUSEEVENTF_ABSOLUTE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        time:=GetTickCount;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+        dwExtraInfo:=GetMessageExtraInfo;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    SendInput(1,Input,SizeOf(TInput));</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">（3）、SendInput与WInIo的对比</span></p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　在《Delphi下利用WinIo模拟鼠标键盘详解》一文中我已经说了WinIo的很多缺点，SendInput几乎没有这些缺点。SendInput的模拟要比WinIo简单的多。事件是被直接插入到系统消息队列的，所以它的速度比WinIo要快。系统也会保证数据的完整性，不会出现数据包混乱的情况。利用“绝对移动”可以将鼠标指针移动到准确的位置，同鼠标的配置隔离不会出现兼容性的问题。SendInput的缺点也是最要命的，它会被一些程序屏蔽。所以说在SendInput与WInIo都可以使用的情况下优先考虑SendInput。另外SendInput与WInIo可以接合使用，一些程序对鼠标左键单击敏感，可以使用WinIo模拟鼠标左键单击，其它操作由SendInput模拟。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">3、用全局钩子也可以模拟键盘消息</span>。如果你对windows中消息钩子的用法已经有所了解，那么你可以通过设置一个全局HOOK来模拟键盘消息，比如，你可以用WH_JOURNALPLAYBACK这个钩子来模拟按键。WH_JOURNALPLAYBACK是一个系统级的全局钩子，它和WH_JOURNALRECORD的功能是相对的，常用它们来记录并回放键盘鼠标操作。WH_JOURNALRECORD钩子用来将键盘鼠标的操作忠实地记录下来，记录下来的信息可以保存到文件中，而WH_JOURNALPLAYBACK则可以重现这些操作。当然亦可以单独使用WH_JOURNALPLAYBACK来模拟键盘操作。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+SetWindowsHookEx函数，它可以用来安装消息钩子：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+SetWindowsHookEx(</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+idHook: Integer;                                {hook type flag}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+lpfn: TFNHookProc;                        {a pointer to the hook function}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+hmod: HINST;                                {a handle to the module containing the hook function}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+dwThreadId: DWORD                        {the identifier of the associated thread}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+): HHOOK;   </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+先安装WH_JOURNALPLAYBACK这个钩子，然后你需要自己写一个钩子函数，在系统调用它时，把你要模拟的事件传递给钩子参数lParam所指向的EVENTMSG区域，就可以达到模拟按键的效果。不过用这个钩子模拟键盘事件有一个副作用，就是它会锁定真实的鼠标键盘，不过如果你就是想在模拟的时候不会受真实键盘操作的干扰，那么用用它倒是个不错的主意。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+在不需要监视系统消息时需要调用提供UnHookWindowsHookEx来解除对消息的监视。       下面来建立程序，在Delphi中建立一个工程，在Form1上添加3个按钮用于程序操作。另外再添加一个按钮控件和一个Edit控件用于验证操作。      </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+下面是Form1的全部代码</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+unit Unit1;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+interface</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+uses </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  StdCtrls;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+type </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  TForm1 = class(TForm)</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Button1: TButton;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Button2: TButton; </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Button3: TButton;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Edit1: TEdit;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Button4: TButton;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    procedure FormCreate(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    procedure Button1Click(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    procedure Button2Click(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    procedure Button3Click(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  private </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    { Private declarations }</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  public </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    { Public declarations }</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Form1: TForm1;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  EventArr:array[0..1000]of EVENTMSG;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  EventLog:Integer;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  PlayLog:Integer;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  hHook,hPlay:Integer;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  recOK:Integer;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  canPlay:Integer;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  bDelay:Bool;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+implementation</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+{$R *.DFM} </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+Function PlayProc(iCode:Integer;wParam:wParam;lParam:lParam):LRESULT;stdcall;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  canPlay:=1;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Result:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  if iCode &lt; 0 then     // 必须将消息传递到消息链的下一个接受单元</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Result := CallNextHookEx(hPlay,iCode,wParam,lParam)</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if iCode = HC_SYSMODALON then</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    canPlay:=0 </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if iCode = HC_SYSMODALOFF then</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    canPlay:=1 </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if ((canPlay =1 )and(iCode=HC_GETNEXT)) then begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    if bDelay then begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      bDelay:=False;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      Result:=50;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end; </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    pEventMSG(lParam)^:=EventArr[PlayLog];</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if ((canPlay = 1)and(iCode = HC_SKIP))then begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    bDelay := True;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    PlayLog:=PlayLog+1;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end; </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  if PlayLog&gt;=EventLog then begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    UNHookWindowsHookEx(hPlay);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function HookProc(iCode:Integer;wParam:wParam;lParam:lParam):LRESULT;stdcall;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  recOK:=1;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Result:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  if iCode &lt; 0 then </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    Result := CallNextHookEx(hHook,iCode,wParam,lParam)</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if iCode = HC_SYSMODALON then</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    recOK:=0 </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if iCode = HC_SYSMODALOFF then</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    recOK:=1 </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  else if ((recOK&gt;0) and (iCode = HC_ACTION)) then begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    EventArr[EventLog]:=pEventMSG(lParam)^;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    EventLog:=EventLog+1;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    if EventLog&gt;=1000 then begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      UnHookWindowsHookEx(hHook);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure TForm1.FormCreate(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button1.Caption:= '纪录';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button2.Caption:=  '停止';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button3.Caption:= '回放';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button4.Caption:=  '范例';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button2.Enabled:=False;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button3.Enabled:=False;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure TForm1.Button1Click(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  EventLog:=0;    //   建立键盘鼠标操作消息纪录链</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  hHook:=SetwindowsHookEx(WH_JOURNALRECORD,HookProc,HInstance,0);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button2.Enabled:=True;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button1.Enabled:=False;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure TForm1.Button2Click(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  UnHookWindowsHookEx(hHook);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  hHook:=0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button1.Enabled:=True;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button2.Enabled:=False;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button3.Enabled:=True;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure TForm1.Button3Click(Sender: TObject);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  PlayLog:=0;  //建立键盘鼠标操作消息纪录回放链</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  hPlay:=SetwindowsHookEx(WH_JOURNALPLAYBACK,PlayProc,</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    HInstance,0);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Button3.Enabled:=False;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end.</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+<span style="margin:0px;padding:0px;">二、驱动级模拟</span> （绕过了windows消息）</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+有一些使用DirectX接口的游戏程序，它们在读取键盘操作时绕过了windows的消息机制，而使用DirectInput.这是因为有些游戏对实时性控制的要求比较高，比如赛车游戏，要求以最快速度响应键盘输入。而windows消息由于是队列形式的，消息在传递时会有不少延迟，有时1秒钟也就传递十几条消息，这个速度达不到游戏的要求。而DirectInput则绕过了windows消息，直接与键盘驱动程序打交道，效率当然提高了不少。因此也就造成，对这样的程序无论用PostMessage或者是keybd_event都不会有反应，因为这些函数都在较高层。对于这样的程序，只好用直接读写键盘端口的方法来模拟硬件事件了。要用这个方法来模拟键盘，需要先了解一下键盘编程的相关知识。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+在DOS时代，当用户按下或者放开一个键时，就会产生一个键盘中断(如果键盘中断是允许的)，这样程序会跳转到BIOS中的键盘中断处理程序去执行。打开windows的设备管理器，可以查看到键盘控制器由两个端口控制。其中&amp;H60是数据端口，可以读出键盘数据，而&amp;H64是控制端口，用来发出控制信号。也就是，从&amp;H60号端口可以读此键盘的按键信息，当从这个端口读取一个字节，该字节的低7位就是按键的扫描码，而高1位则表示是按下键还是释放键。当按下键时，最高位为0，称为通码，当释放键时，最高位为1，称为断码。既然从这个端口读数据可以获得按键信息，那么向这个端口写入数据就可以模拟按键了！用过QbASIC4.5的朋友可能知道，QB中有个OUT命令可以向指定端口写入数据，而INP函数可以读取指定端口的数据。那我们先看看如果用QB该怎么写代码：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+假如你想模拟按下一个键，这个键的扫描码为&amp;H50，那就这样</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+OUT &amp;H64,&amp;HD2    '把数据&amp;HD2发送到&amp;H64端口。这是一个KBC指令，表示将要向键盘写入数据</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+OUT &amp;H60,&amp;H50    '把扫描码&amp;H50发送到&amp;H60端口，表示模拟按下扫描码为&amp;H50的这个键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+那么要释放这个键呢？像这样，发送该键的断码：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+OUT &amp;H64,&amp;HD2    '把数据&amp;HD2发送到&amp;H64端口。这是一个KBC指令，表示将要向键盘写入数据</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+OUT &amp;H60,(&amp;H50 or &amp;H80)    '把扫描码&amp;H50与数据&amp;H80进行或运算，可以把它的高位置1，得到断码，表示释放这个键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+好了，现在的问题就是在delphi中如何向端口写入数据了。因为在windows中，普通应用程序是无权操作端口的，于是我们就需要一个驱动程序来帮助我们实现。在这里我们可以使用一个组件WINIO来完成读写端口操作。什么是WINIO？WINIO是一个全免费的、无需注册的、含源程序的WINDOWS2000端口操作驱动程序组件(可以到http://www.internals.com/上去下载)。它不仅可以操作端口，还可以操作内存；不仅能在VB下用，还可以在DELPHI、VC等其它环境下使用，性能特别优异。下载该组件，解压缩后可以看到几个文件夹，其中Release文件夹下的3个文件就是我们需要的，这3个文件是WinIo.sys(用于win
+ xp下的驱动程序)，WINIO.VXD(用于win 98下的驱动程序)，WinIo.dll(封装函数的动态链接库)，我们只需要调用WinIo.dll中的函数，然后WinIo.dll就会安装并调用驱动程序来完成相应的功能。值得一提的是这个组件完全是绿色的，无需安装，你只需要把这3个文件复制到与你的程序相同的文件夹下就可以使用了。用法很简单，先用里面的InitializeWinIo函数安装驱动程序，然后就可以用GetPortVal来读取端口或者用SetPortVal来写入端口了。好，让我们来做一个驱动级的键盘模拟吧。先把winio的3个文件拷贝到你的程序的文件夹下。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+下面给出使用WINIO模拟按键的单元和使用方法：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+{****************************************************************************}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+unit MNwinio;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+interface</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ const</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  KBC_KEY_CMD = $64; //键盘命令端口</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  KBC_KEY_DATA = $60; //键盘数据端口</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+implementation</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function InitializeWinIo: Boolean; stdcall; external 'WinIo.dll' name 'InitializeWinIo';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+   {</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    本函数初始化WioIO函数库。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　必须在调用所有其它功能函数之前调用本函数。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　如果函数调用成功，返回值为非零值。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　　如果调用失败，则返回值为0。</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+   procedure TForm1.FormActivate(Sender: TObject); //通常在程序启动时调用</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+   begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+     if InitializeWinIo = False then</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+       begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+         Messagebox(handle, '初始化失败！', '提示', MB_OK + MB_IconError)</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+       end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  }</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function InstallWinIoDriver(pszWinIoDriverPath: PString; IsDemandLoaded: boolean</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  = false): Boolean; stdcall; external 'WinIo.dll' name 'InstallWinIoDriver';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function RemoveWinIoDriver: Boolean; stdcall; external 'WinIo.dll' name</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  'RemoveWinIoDriver';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function GetPortVal(PortAddr: Word; PortVal: PDWord; bSize: Byte): Boolean;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  stdcall; external 'WinIo.dll' name 'GetPortVal';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function SetPortVal(PortAddr: Word; PortVal: DWord; bSize: Byte): Boolean;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  stdcall; external 'WinIo.dll' name 'SetPortVal';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function GetPhysLong(PhysAddr: PByte; PhysVal: PDWord): Boolean; stdcall;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  external 'WinIo.dll' name 'GetPhysLong';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function SetPhysLong(PhysAddr: PByte; PhysVal: DWord): Boolean; stdcall; external</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  'WinIo.dll' name 'SetPhysLong';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function MapPhysToLin(PhysAddr: PByte; PhysSize: DWord; PhysMemHandle: PHandle):</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  PByte; stdcall; external 'WinIo.dll' name 'MapPhysToLin';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+function UnMapPhysicalMemory(PhysMemHandle: THandle; LinAddr: PByte): Boolean;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  stdcall; external 'WinIo.dll' name 'UnmapPhysicalMemory';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure ShutdownWinIo; stdcall; external 'WinIo.dll' name 'ShutdownWinIo';</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ { 本函数在内存中清除WinIO库</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+　本函数必须在中止应用函数之前或者不再需要WinIO库时调用</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction); //通常在程序关闭时调用</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  ShutdownWinIo;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+   }</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+{**********以上为WINIO.dll中API函数的调用***************}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure KBCWait4IBE; //等待键盘缓冲区为空</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  dwVal: DWord;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  repeat</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    GetPortVal($64, @dwVal, 1);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+      {这句表示从&amp;H64端口读取一个字节并把读出的数据放到变量dwVal中. GetPortVal函数的用法是 GetPortVal (端口号,存放读出数据的变量地址,读入的长度}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  until (dwVal and $2) = 0;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  {上面的是一个根据KBC规范写的过程，它的作用是在向键盘端口写入数据前等待一段时间，后面将会用到。}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure MyKeyDown(vKeyCoad: Integer);    // 这个用来模拟按下键，参数vKeyCoad传入按键的虚拟码</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  btScancode: DWord;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  btScancode := MapVirtualKey(vKeyCoad, 0);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  KBCWait4IBE;                           // 发送数据前应该先等待键盘缓冲区为空</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  SetPortVal($64, $D2, 1);               // 发送键盘写入命令</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  {SetPortVal函数用于向端口写入数据，它的用法是：SetPortVal(端口号,欲写入的数据，写入数据的长度)}</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  KBCWait4IBE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  SetPortVal($60, btScancode, 1);   //写入按键信息,按下键</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end; </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+procedure MyKeyUp(vKeyCoad: Integer);     //这个用来模拟释放键，参数vKeyCoad传入按键的虚拟码</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+var</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  btScancode: DWord;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+begin</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  btScancode := MapVirtualKey(vKeyCoad, 0);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  KBCWait4IBE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  SetPortVal($64, $D2, 1);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  KBCWait4IBE;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  SetPortVal($64, (btScancode or $80), 1);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ end;</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+end.</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ </p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ {</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+    使用方法：</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  如模拟按键 1</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  MyKeyDown($31);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  Sleep(50);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+  MyKeyUp($31);</p>
+<p style="margin:10px auto;padding-top:0px;padding-bottom:0px;font-family:verdana, 'ms song', '宋体', Arial, '微软雅黑', Helvetica, sans-serif;">
+ }</p>
+            </div>
+                </div>
+				<div class="hide-article-box text-center csdn-tracking-statistics tracking-click" data-mod="popu_376">
+			<a class="btn btn-red-hollow" id="btn-readmore">阅读更多</a>
+		</div>
+        	</article>
+	
+		<div class="article-bar-bottom">
+								<div class="tags-box">
+			<span class="label">个人分类：</span>
+						<a class="tag-link" href="https://blog.csdn.net/wangpengk7788/article/category/6640431"  target="_blank">Windows						</a>
+		</div>
+					</div>
+	
+	<!-- !empty($pre_next_article[0]) -->
+		</div>
+<script>
+    $(".MathJax").remove();
+</script>
+<script type="text/javascript" src="https://static-blog.csdn.net/mdeditor/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config"> 
+    MathJax.Hub.Config({ 
+			"HTML-CSS": { 
+					linebreaks: { automatic: true, width: "94%container" },
+					imageFont: null
+			},
+			tex2jax: {
+				preview: "none"
+			},
+			mml2jax: {
+				preview: 'none'
+			}
+	});
+</script>
+<script>
+	(function(){
+		var btnReadmore = $("#btn-readmore");
+		if(btnReadmore.length>0){
+			var winH = $(window).height();
+			var articleBox = $("div.article_content");
+			var artH = articleBox.height();
+			if(artH > winH*2){
+				articleBox.css({
+					'height':winH*2+'px',
+					'overflow':'hidden'
+				})
+				btnReadmore.click(function(){
+					articleBox.removeAttr("style");
+					$(this).parent().remove();
+				})
+			}else{
+				btnReadmore.parent().remove();
+			}
+		}
+	})()
+</script>        <div class="edu-promotion"></div>
+        <a id="commentBox"></a>
+<div class="comment-box">
+	  	<div class="unlogin-box text-center">
+		想对作者说点什么？
+		<!-- $curl 当前地址 -->
+		<a href="https://passport.csdn.net/account/login?from=https://blog.csdn.net/wangpengk7788/article/details/76474471#commentBox" class="btn btn-sm btn-red">我来说一句</a>
+	</div>
+			<div class="comment-list-container">
+		<a id="comments"></a>
+		<div class="comment-list-box">
+		</div>
+		<div id="commentPage" class="pagination-box d-none"></div>
+		<div class="opt-box text-center">
+			<button class="btn btn-sm btn-link-blue" id="btnMoreComment"></button>
+		</div>
+	</div>
+</div>        <div class="recommend-box">
+            		<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/qq_37600027/article/details/79059375" target="_blank" strategy="BlogCommendFromBaidu_0">
+				[python]windows下<em>模拟</em><em>鼠标</em><em>键盘</em>输入			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/qq_37600027/article/details/79059375" target="_blank" >
+				先介绍几个用到的函数：
+1.SetCursorPos(x，y)函数：该函数把光标移到屏幕的指定位置，但是并没有点击。
+2.mouse_event()函数：函数综合<em>鼠标</em>击键和<em>鼠标</em>动作
+mouse_...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/qq_37600027" title="qq_37600027" target="_blank">
+					<img src="https://avatar.csdn.net/1/7/5/3_qq_37600027.jpg" alt="qq_37600027" class="avatar-pic">
+					<span class="name">qq_37600027</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2018-01-14 21:24:32</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：66</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/yangzhenping/article/details/66478970" target="_blank" strategy="BlogCommendFromBaidu_1">
+				写了个<em>鼠标</em><em>键盘</em><em>模拟</em>器，希望对大家有用哈！			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/yangzhenping/article/details/66478970" target="_blank" >
+				写了个<em>鼠标</em><em>键盘</em><em>模拟</em>器，希望对大家有用哈！			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/yangzhenping" title="yangzhenping" target="_blank">
+					<img src="https://avatar.csdn.net/F/E/0/3_yangzhenping.jpg" alt="yangzhenping" class="avatar-pic">
+					<span class="name">yangzhenping</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2017-03-26 20:46:04</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：1659</span>
+			</p>
+		</div>
+	</div>
+				<div class="recommend-item-box recommend-ad-box" id="ad1">
+
+							<script>
+				  var width = $("div.recommend-box").outerWidth() - 48;
+					NEWS_FEED({
+						w: width,
+						h : 90,
+						showid : 'GNKXx7',
+						placeholderId: "ad1",
+						inject : 'define',
+						define : {
+							imagePosition : 'right',
+							imageBorderRadius : 0,
+							imageWidth: 120,
+							imageHeight: 90,
+							imageFill : 'clip',
+							displayImage : true,
+							displayTitle : true,
+							titleFontSize: 20,
+							titleFontColor: '#333',
+							titleFontFamily : 'Microsoft Yahei',
+							titleFontWeight: 'bold',
+							titlePaddingTop : 0,
+							titlePaddingRight : 0,
+							titlePaddingBottom : 10,
+							titlePaddingLeft : 0,
+							displayDesc : true,
+							descFontSize: 14,
+							descFontColor: '#6b6b6b',
+							descFontFamily : 'Microsoft Yahei',
+							paddingTop : 0,
+							paddingRight : 0,
+							paddingBottom : 0,
+							paddingLeft : 0,
+							backgroundColor: '#fff',
+							hoverColor: '#ca0c16'
+						}
+					})
+				</script>
+
+			
+		</div>
+				<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/aasmfox/article/details/53536026" target="_blank" strategy="BlogCommendFromBaidu_2">
+				<em>模拟</em><em>键盘</em><em>鼠标</em>事件有两种方法			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/aasmfox/article/details/53536026" target="_blank" >
+				实现一个<em>鼠标</em>或者<em>键盘</em><em>模拟</em>器，可以完成很多功能，比如做一个简单的游戏外挂^_^。通常，<em>模拟</em><em>键盘</em><em>鼠标</em>事件有两种方法：
+1.keybd_event, mouse_event
+2.SendMessage,...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/aasmfox" title="aasmfox" target="_blank">
+					<img src="https://avatar.csdn.net/B/7/6/3_aasmfox.jpg" alt="aasmfox" class="avatar-pic">
+					<span class="name">aasmfox</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2016-12-09 10:47:36</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：964</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/accesine960/article/details/211532" target="_blank" strategy="BlogCommendFromBaidu_3">
+				在windows下<em>模拟</em><em>鼠标</em><em>键盘</em>输入的几种方法 (附带源代码)			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/accesine960/article/details/211532" target="_blank" >
+				在windows下<em>模拟</em><em>鼠标</em><em>键盘</em>输入的几种方法    最近小叮咚使用的服务器(第3方的asp服务器,不是iis)在启动后总是不能自动运行,可能里面有Bug,需要点击启动按钮后才能连接到internet上...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/accesine960" title="accesine960" target="_blank">
+					<img src="https://avatar.csdn.net/D/4/3/3_accesine960.jpg" alt="accesine960" class="avatar-pic">
+					<span class="name">accesine960</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2004-12-10 11:24:00</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：10152</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/lxj434368832/article/details/60875450" target="_blank" strategy="BlogCommendFromBaidu_4">
+				C++实现<em>鼠标</em>控制 封装常见的<em>模拟</em><em>鼠标</em>、<em>键盘</em>的操作函数			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/lxj434368832/article/details/60875450" target="_blank" >
+				API 或 MFC 视窗程序 里 有 函数，
+
+例如 API  函数  设位置：
+
+BOOL SetCursorPos( int x, int y); 
+
+参数是屏幕坐标x,y
+
+头文件 Winuse...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/lxj434368832" title="lxj434368832" target="_blank">
+					<img src="https://avatar.csdn.net/3/5/7/3_lxj434368832.jpg" alt="lxj434368832" class="avatar-pic">
+					<span class="name">lxj434368832</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2017-03-08 16:46:14</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：5741</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/nonecode/article/details/31472149" target="_blank" strategy="BlogCommendFromBaidu_5">
+				实现DX游戏的<em>键盘</em><em>鼠标</em>操作			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/nonecode/article/details/31472149" target="_blank" >
+				*碰到DX游戏SendMessage 和PostMessage是没办法使用			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/nonecode" title="nonecode" target="_blank">
+					<img src="https://avatar.csdn.net/6/F/A/3_nonecode.jpg" alt="nonecode" class="avatar-pic">
+					<span class="name">nonecode</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2014-06-16 22:14:46</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：4866</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box recommend-ad-box" id="a_d_feed_0">
+			<script>
+				var width = $("div.recommend-box").outerWidth() - 48;
+				NEWS_FEED({
+					w: width,
+					h: 90,
+					showid: 'Afihld',
+					placeholderId: 'a_d_feed_0',
+					inject: 'define',
+					define: {
+						imagePosition: 'right',
+						imageBorderRadius: 0,
+						imageWidth: 120,
+						imageHeight: 90,
+						imageFill: 'clip',
+						displayImage: true,
+						displayTitle: true,
+						titleFontSize: 20,
+						titleFontColor: '#333',
+						titleFontFamily: 'Microsoft Yahei',
+						titleFontWeight: 'bold',
+						titlePaddingTop: 0,
+						titlePaddingRight: 0,
+						titlePaddingBottom: 10,
+						titlePaddingLeft: 0,
+						displayDesc: true,
+						descFontSize: 14,
+						descFontColor: '#6b6b6b',
+						descFontFamily: 'Microsoft Yahei',
+						paddingTop: 0,
+						paddingRight: 0,
+						paddingBottom: 0,
+						paddingLeft: 0,
+						backgroundColor: '#fff',
+						hoverColor: '#ca0c16'
+					}
+				})
+			</script>
+		</div>
+			<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://download.csdn.net/download/xushuyi07/9522541" target="_blank" strategy="searchFromBaidu_6">
+				&lt;em&gt;<em>模拟</em><em>鼠标</em>&lt;/em&gt;和&lt;em&gt;<em>键盘</em>&lt;/em&gt;			</a>
+		</h4>
+		<p class="content">
+			<a href="https://download.csdn.net/download/xushuyi07/9522541" target="_blank" strategy="searchFromBaidu_6">
+				&lt;em&gt;<em>模拟</em><em>鼠标</em>&lt;/em&gt;点击和&lt;em&gt;<em>模拟</em>&lt;/em&gt;按键,测试QQ登录,没有找到&lt;em&gt;好的&lt;/em&gt;方法... &lt;em&gt;<em>模拟</em><em>鼠标</em>&lt;/em&gt;点击和&lt;em&gt;<em>模拟</em>&lt;/em&gt;按键,测试QQ登录,没有找到&lt;em&gt;好的&lt;/em&gt;...&lt;em&gt;<em>模拟</em><em>鼠标</em>&lt;/em&gt;和&lt;em&gt;<em>键盘</em>&lt;/em&gt;操作教程C#源代码,在程序中可以通过...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+							<span class="read-num">下载</span>
+				
+			</p>
+			<p>
+				<span class="date">2018年04月14日 00:00</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://download.csdn.net/download/dellway/627522" target="_blank" strategy="searchFromBaidu_7">
+				&lt;em&gt;<em>鼠标</em><em>键盘</em><em>模拟</em>&lt;/em&gt;程序源码			</a>
+		</h4>
+		<p class="content">
+			<a href="https://download.csdn.net/download/dellway/627522" target="_blank" strategy="searchFromBaidu_7">
+				用&lt;em&gt;<em>键盘</em><em>模拟</em><em>鼠标</em>&lt;/em&gt;,但当&lt;em&gt;<em>鼠标</em>&lt;/em&gt;出问题时,可以实用这个程序!一个简单&lt;em&gt;的<em>键盘</em><em>模拟</em>&lt;/em&gt;程序!此程序没有显示界面,后台运行,没有结束快捷键(使用&lt;em&gt;的<em>鼠标</em>&lt;/em&gt;有问题,此程序代替&lt;em&gt;<em>鼠标</em>&lt;/em&gt;),...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+							<span class="read-num">下载</span>
+				
+			</p>
+			<p>
+				<span class="date">2018年04月14日 00:00</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://blog.csdn.net/jslamb/article/details/541512" target="_blank" strategy="searchFromBaidu_8">
+				用程序<em>模拟</em><em>键盘</em>和<em>鼠标</em><em>键盘</em>			</a>
+		</h4>
+		<p class="content">
+			<a href="https://blog.csdn.net/jslamb/article/details/541512" target="_blank" >
+				在Windows大行其道的今天，windows界面程序受到广大用户的欢迎。对这些程序的操作不外乎两种，<em>键盘</em>输入控制和<em>鼠标</em>输入控制。有时，对于繁杂的，或重复性的操作，我们能否通过编制程序来代替手工输入，...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+				<a class="avatar" src="https://blog.csdn.net/jslamb" title="jslamb" target="_blank">
+					<img src="https://avatar.csdn.net/5/B/9/3_jslamb.jpg" alt="jslamb" class="avatar-pic">
+					<span class="name">jslamb</span>
+				</a>
+			</p>
+			<p>
+				<span class="date">2005-12-01 20:19:00</span>
+			</p>
+			<p>
+				<span class="read-num">阅读数：809</span>
+			</p>
+		</div>
+	</div>
+					<div class="recommend-item-box csdn-tracking-statistics" data-mod="popu_387" data-poputype="feed"  data-feed-show="false"  data-dsm="post">
+		<h4 class="text-truncate">
+			<a href="https://download.csdn.net/download/dofun333/9543669" target="_blank" strategy="searchFromBaidu_9">
+				记录并&lt;em&gt;<em>模拟</em><em>鼠标</em><em>键盘</em>&lt;/em&gt;的动作(C#编写,带源文件)			</a>
+		</h4>
+		<p class="content">
+			<a href="https://download.csdn.net/download/dofun333/9543669" target="_blank" strategy="searchFromBaidu_9">
+				几年前喜欢玩游戏,玩“天下二”的时候里面采集资源有很多重复的动作,于是想到写个&lt;em&gt;<em>模拟</em><em>鼠标</em>&lt;/em&gt;和&lt;em&gt;<em>键盘</em>&lt;/em&gt;动作的工具,这样我只要记录一遍我的动作,程序就能自己在那儿重复我...			</a>
+		</p>
+		<div class="info-box d-flex align-content-center">
+			<p>
+							<span class="read-num">下载</span>
+				
+			</p>
+			<p>
+				<span class="date">2018年04月13日 00:00</span>
+			</p>
+		</div>
+	</div>
+			            <div class="recommend-loading-box">
+                <img src='https://csdnimg.cn/release/phoenix/images/feedLoading.gif'>
+            </div>
+            <div class="recommend-end-box">
+                <p class="text-center">没有更多推荐了，<a href="https://blog.csdn.net/" class="c-blue c-blue-hover c-blue-focus">返回首页</a></p>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="mask-dark"></div>
+<div class="report-box">
+    <div class="pos-box">
+        <h2 class="title">不良信息举报</h2>
+        <a class="btn-close">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#csdnc-times"></use>
+            </svg>
+        </a>
+        <form id="frmReport">
+            <div class="form-box">
+                <div class="txt-row-box">
+                    <label class="title" id="reptTit">举报内容：</label>
+                    <p class="rpt-title text-truncate">键盘鼠标模拟全知道</p>
+                </div>
+                <div class="txt-row-box">
+                    <label class="title">举报原因：</label>
+                    <div class="rdo-box">
+                        <label><input type="radio" class="rdo-chk report-type" id="report_sex" name="report_type" value="1">色情</label>
+                        <label><input type="radio" class="rdo-chk report-type" id="report_Politics" name="report_type" value="2">政治</label>
+                        <label><input type="radio" class="rdo-chk report-type" id="report_copy" name="report_type" value="3">抄袭</label>
+                        <label><input type="radio" class="rdo-chk report-type" id="report_ad" name="report_type" value="4">广告</label>
+                        <label><input type="radio" class="rdo-chk report-type" id="report_want" name="report_type" value="5">招聘</label>
+                        <label><input type="radio" class="rdo-chk report-type" id="report_call" name="report_type" value="6">骂人</label>
+                        <label><input type="radio" class="rdo-chk report-type" id="report_other" name="report_type" value="7">其他</label>
+                    </div>
+                </div>
+                <div class="txt-row-box" id="rptOriginalurl">
+                    <label class="title">原文地址：</label>
+                    <div class="txt-box">
+                        <input class="ipt" type="text" name="originalurl">
+                    </div>
+                </div>
+                <div class="txt-row-box">
+                    <label class="title">原因补充：</label>
+                    <div class="txt-box">
+                        <textarea class="ipt ipt-textarea" name="description" maxlength="30"></textarea>
+                        <p class="remark">最多只允许输入30个字</p>
+                    </div>
+                </div>
+            </div>
+            <div class="opt-box text-right">
+                <input type="reset" class="btn btn-link-gray btn-close" value="取消">
+                <input type="submit" class="btn btn-red btn-submit" value="提交">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="pulllog-box" style="display: block;">
+	<div class="pulllog clearfix">
+		<span class="text float-left">加入CSDN，享受更精准的内容推荐，与500万程序员共同成长！</span>
+		<div class="pulllog-btn float-right clearfix">
+            <button class="pulllog-login float-left csdn-tracking-statistics tracking-click" data-mod="popu_557">
+                登录
+            </button>
+            <div class="pulllog-sigin float-left csdn-tracking-statistics tracking-click" data-mod="popu_558">
+                <a href="https://passport.csdn.net/account/mobileregister" target="_blank">注册</a>
+            </div>
+            <button class="btn-close">
+                <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#csdnc-times"></use>
+                </svg>
+            </button>
+		</div>
+	</div>
+</div>
+<div id="loginWrap" style="display:none"></div>
+<div class="tool-box">
+	<ul class="meau-list">
+		<li>
+			<button class="btn-like " title="点赞">
+				<svg class="icon active" aria-hidden="true">
+					<use xlink:href="#csdnc-thumbsup-ok"></use>
+				</svg><svg class="icon no-active" aria-hidden="true">
+					<use xlink:href="#csdnc-thumbsup"></use>
+				</svg>
+				<p>0</p>
+			</button>
+		</li>
+		<li class="toc-container-box" id="liTocBox">
+			<button class="btn-toc" title="目录">
+				<svg class="icon" aria-hidden="true">
+					<use xlink:href="#csdnc-contents"></use>
+				</svg><br>目录
+			</button>
+			<div class="toc-container">
+				<div class="pos-box">
+					<div class="icon-arrow"></div>
+					<div class="scroll-box">
+						<div class="toc-box"></div>
+					</div>
+				</div>
+				<div class="opt-box">
+					<button class="btn-opt prev nomore" title="向上">
+						<svg class="icon" aria-hidden="true">
+							<use xlink:href="#csdnc-chevronup"></use>
+						</svg>
+					</button>
+					<button class="btn-opt next">
+						<svg class="icon" aria-hidden="true">
+							<use xlink:href="#csdnc-chevrondown"></use>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</li>
+		<li>
+			<button class="btn-bookmark" title="收藏">
+				<svg class="icon active" aria-hidden="true">
+					<use xlink:href="#csdnc-bookmark-ok"></use>
+				</svg><svg class="icon no-active" aria-hidden="true">
+					<use xlink:href="#csdnc-bookmark"></use>
+				</svg><br>收藏
+			</button>
+		</li>
+		<li>
+			<a class="btn-comments" title="评论" href="#commentBox">
+				<svg class="icon" aria-hidden="true">
+					<use xlink:href="#csdnc-comments"></use>
+				</svg><br>评论
+			</a>
+		</li>
+				<li class="bdsharebuttonbox">
+			<a class="btn-comments bds_weixin" data-cmd="weixin" title="微信分享">
+				<svg class="icon" aria-hidden="true">
+					<use xlink:href="#csdnc-wechat"></use>
+				</svg><br>微信
+			</a>
+		</li>
+		<li class="bdsharebuttonbox">
+			<a class="btn-comments bds_tsina" data-cmd="tsina" title="微博分享">
+				<svg class="icon" aria-hidden="true">
+					<use xlink:href="#csdnc-weibo"></use>
+				</svg><br>微博
+			</a>
+		</li>
+		<li class="bdsharebuttonbox">
+			<a class="btn-comments bds_qzone" data-cmd="qzone" title="QQ分享">
+				<svg class="icon" aria-hidden="true">
+					<use xlink:href="#csdnc-qq"></use>
+				</svg><br>QQ
+			</a>
+		</li>
+	</ul>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'https://csdnimg.cn/static/api/js/share.js?v=89860594'];</script>
+<script src="https://csdnimg.cn/public/sandalstrap/1.2/js/sandalstrap.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/vendor/pagination/paging.js"></script>
+<script src='https://csdnimg.cn/public/common/gotop/js/goTop-v1.0.min.js?v201803151422'></script>
+<script>
+    GoTop({
+        right: 8,
+        hasReport: true,
+        reportFun: function() {
+            showReport(false,'键盘鼠标模拟全知道');
+        }
+    })
+</script>
+<script src="https://csdnimg.cn/release/phoenix/template/js/common-bd54b21308.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/template/js/detail-18414583a5.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/themes/skin3-template/skin3-template-46c7bd3d86.min.js"></script>
+<script src="https://csdnimg.cn/search/baidu_search-1.1.2.js?v=201802071056&autorun=true&install=true&keyword=%E6%A8%A1%E6%8B%9F%E7%9C%9F%E9%94%AE%E7%9B%98"  type="text/javascript"></script>
+</body>
+<div class="box-box-default">
+    <a class="btn-remove">
+        关闭
+    </a>
+    <script type="text/javascript" src="//cee1.iteye.com/mhzzjepzz.js"></script>
+</div>
+<div class="box-box-large">
+    <a class="btn-remove">
+        关闭
+    </a>
+    <script type="text/javascript" src="//cee1.iteye.com/idvveasfs.js"></script>
+</div>
+</html>

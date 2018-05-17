@@ -74,13 +74,13 @@ namespace QuickMacro
                 strapp.AppendEx("Rem go");
                 strapp.AppendEx("KeyPress W");
                 strapp.AppendEx("Delay 100");
-                strapp.AppendEx("KeyPress Control");
+                strapp.AppendEx("KeyPress LControlKey");
                 strapp.AppendEx("Delay 100");
                 strapp.AppendEx("KeyPress E");
                 strapp.AppendEx("Delay 100");
                 strapp.AppendEx("KeyUp E");
                 strapp.AppendEx("Delay 10");
-                strapp.AppendEx("KeyUp Control");
+                strapp.AppendEx("KeyUp LControlKey");
                 strapp.AppendEx("Delay 10");
                 strapp.AppendEx("KeyUp W");
                 strapp.AppendEx("Delay 200");
@@ -135,11 +135,57 @@ namespace QuickMacro
 
     static class Extend
     {
+        public static StringBuilder Append(this StringBuilder strapp, int num, string str)
+        {
+            try
+            {
+                StringBuilder strbud = new StringBuilder();
+                for (int i = 0; i < num; i++)
+                {
+                    strbud.Append("\t");
+                }
+                return strapp.Append(strbud.ToString() + str);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public static StringBuilder AppendEx(this StringBuilder strapp)
+        {
+            try
+            {
+                return strapp.Append("\r\n");
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public static StringBuilder AppendEx(this StringBuilder strapp, string str)
         {
             try
             {
                 return strapp.Append(str + "\r\n");
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public static StringBuilder AppendEx(this StringBuilder strapp,int num, string str)
+        {
+            try
+            {
+                StringBuilder strbud = new StringBuilder();
+                for (int i = 0; i < num; i++)
+                {
+                    strbud.Append("\t");
+                }
+                return strapp.Append(strbud.ToString() + str + "\r\n");
             }
             catch
             {
@@ -165,6 +211,20 @@ namespace QuickMacro
             {
                 throw;
             }
+        }
+
+        public static string GetKey(this Dictionary<string, int> dic, int obj)
+        {
+            string ret = "";
+            foreach (string str in dic.Keys)
+            {
+                if (dic[str] == obj)
+                {
+                    ret = str;
+                    break;
+                }
+            }
+            return ret;
         }
     }
 }

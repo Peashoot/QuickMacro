@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace QuickMacro
 {
@@ -41,6 +42,18 @@ namespace QuickMacro
         /// 录制状态
         /// </summary>
         bool recordState = false;
+        /// <summary>
+        /// 键值对
+        /// </summary>
+        Dictionary<string, string> dicKeyText = new Dictionary<string, string>();
+        /// <summary>
+        /// 对应按键注册的热键
+        /// </summary>
+        Dictionary<string, int> dicHotKeyId = new Dictionary<string, int>();
+        /// <summary>
+        /// 热键ID
+        /// </summary>
+        int hotKeyId;
         #endregion
         #region 总的
         #region 窗体加载
@@ -51,6 +64,7 @@ namespace QuickMacro
         /// <param name="e"></param>
         private void SimpleQuickMacro_Load(object sender, EventArgs e)
         {
+            hotKeyId = 7010;
             localScript.ReadScript();
             initPage_Set();
             initPage_Choose();
@@ -68,6 +82,10 @@ namespace QuickMacro
             SystemHotKey.RegHotKey(this.Handle, 7002, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Stop_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Stop_Main.Text));
             SystemHotKey.RegHotKey(this.Handle, 7003, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Start_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Start_Main.Text));
             SystemHotKey.RegHotKey(this.Handle, 7004, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Resize_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Resize_Main.Text));
+            foreach (KeyValuePair<string, int> kvp in dicHotKeyId)
+            {
+                SystemHotKey.RegHotKey(this.Handle, kvp.Value, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), kvp.Key.Split('+')[0]), (Keys)Enum.Parse(typeof(Keys), kvp.Key.Split('+')[1]));
+            }
         }
         #endregion
         #region 捕获键盘事件
@@ -86,7 +104,7 @@ namespace QuickMacro
                             if (!runState)
                             {
                                 dicInvoke.ReCompiler(txt_Details_c.Text.Trim());
-                                dicInvoke.StartThread(); 
+                                dicInvoke.StartThread();
                                 btn_Run.Text = "停止";
                                 runState = true;
                             }
@@ -105,6 +123,11 @@ namespace QuickMacro
                         case "7004":
                             ShowAndHideForm();
                             break;
+                    }
+                    int msg = Convert.ToInt32(m.WParam.ToString());
+                    if (msg > 7009 && msg < hotKeyId)
+                    {
+                        SendKeys.Send(dicKeyText[dicHotKeyId.GetKey(msg)]);
                     }
                     break;
             }
@@ -129,6 +152,9 @@ namespace QuickMacro
                     break;
                 case "page_Set":
                     initPage_Set();
+                    break;
+                case "page_Exchange":
+                    initPage_Exchange();
                     break;
             }
         }
@@ -227,6 +253,10 @@ namespace QuickMacro
             SystemHotKey.UnRegHotKey(this.Handle, 7002);
             SystemHotKey.UnRegHotKey(this.Handle, 7003);
             SystemHotKey.UnRegHotKey(this.Handle, 7004);
+            foreach (KeyValuePair<string, int> kvp in dicHotKeyId)
+            {
+                SystemHotKey.UnRegHotKey(this.Handle, kvp.Value);
+            }
         }
         #endregion
         #endregion
@@ -289,6 +319,18 @@ namespace QuickMacro
         private void cmb_Choose_c_SelectedIndexChanged(object sender, EventArgs e)
         {
             txt_Details_c.Text = localScript.scriptList.Find(i => i.ScriptName == cmb_Choose_c.SelectedItem.ToString()).Details;
+        }
+        #endregion
+        #region 显示脚本构成C#的代码
+        /// <summary>
+        /// 显示脚本构成的C#代码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_CodeCSharp_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetDataObject(dicInvoke.GenerateCode(txt_Details_c.Text.Trim("\r\n").Trim()));
+            MessageBox.Show("C#代码已复制到剪切板中。");
         }
         #endregion
         #region 删除脚本
@@ -401,6 +443,18 @@ namespace QuickMacro
             new DynamicInvoke().ReCompiler(txt_Details_r.Text.Trim("\r\n").Trim());
         }
         #endregion
+        #region 显示脚本构成的Java代码
+        /// <summary>
+        /// 显示脚本构成的Java代码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Code_Java_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetDataObject(dicInvoke.GenerateCodeJava(txt_Details_c.Text.Trim("\r\n").Trim()));
+            MessageBox.Show("Java代码已复制到剪切板中。");
+        }
+        #endregion
         #endregion
         #region 设置选项卡
         #region 设置选项卡初始化
@@ -461,69 +515,113 @@ namespace QuickMacro
             RegHotKeys();
         }
         #endregion
+        #endregion
+        #region 替换选项卡
+        #region 初始化替换选项卡
+        /// <summary>
+        /// 初始化替换选项卡
+        /// </summary>
+        private void initPage_Exchange()
+        {
+            dgv_KeyTextPair.DataSource = dicKeyText.ToArray();
+            dgv_KeyTextPair.Columns["Key"].HeaderText = "接收按键";
+            dgv_KeyTextPair.Columns["Value"].HeaderText = "输出文本";
+            txt_PrintText_e.Clear();
+            cmb_RecvKey_Shift.DataSource = System.Enum.GetNames(typeof(EnumClass.KeyModifiers));
+            cmb_RecvKey_Main.DataSource = System.Enum.GetNames(typeof(EnumClass.KeyMain));
+            cmb_RecvKey_Shift.SelectedIndex = 0;
+            cmb_RecvKey_Main.SelectedIndex = 0;
+        }
+        #endregion
+        #region 清空
+        /// <summary>
+        /// 清空
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Clear_e_Click(object sender, EventArgs e)
+        {
+            dicKeyText.Clear();
+            foreach (KeyValuePair<string, int> kvp in dicHotKeyId)
+            {
+                SystemHotKey.UnRegHotKey(this.Handle, kvp.Value);
+            }
+            dicHotKeyId.Clear();
+            dgv_KeyTextPair.DataSource = dicKeyText.ToArray();
+        }
+        #endregion
         #region 保存
         /// <summary>
         /// 保存
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btn_Save_s_Click(object sender, EventArgs e)
+        private void btn_Save_e_Click(object sender, EventArgs e)
         {
-            string[] strs;
-            UnRegHotKeys();
-            if (SystemHotKey.RegHotKey(this.Handle, 7001, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Activate_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Activate_Main.Text)))
+            if (cmb_RecvKey_Shift.Text == "None" && cmb_RecvKey_Main.Text == "None")
             {
-                ConfigInfo.UpdateAppConfig("ActivateHotKey", cmb_Activate_Shift.Text + '+' + cmb_Activate_Main.Text);
+                return;
+            }
+            string selectstr = cmb_RecvKey_Shift.Text + "+" + cmb_RecvKey_Main.Text;
+            if (dicKeyText.ContainsKey(selectstr))
+            {
+                dicKeyText[selectstr] = txt_PrintText_e.Text.Trim();
+                SystemHotKey.UnRegHotKey(this.Handle, dicHotKeyId[selectstr]);
+                SystemHotKey.RegisterHotKey(this.Handle, dicHotKeyId[selectstr], (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_RecvKey_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_RecvKey_Main.Text));
             }
             else
             {
-                strs = ConfigInfo.ActivateHotKey.Split('+');
-                cmb_Activate_Shift.SelectedItem = strs[0];
-                cmb_Activate_Main.SelectedItem = strs[1];
+                dicKeyText.Add(selectstr, txt_PrintText_e.Text.Trim());
+                dicHotKeyId.Add(selectstr, hotKeyId++);
+                SystemHotKey.RegisterHotKey(this.Handle, dicHotKeyId[selectstr], (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_RecvKey_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_RecvKey_Main.Text));
             }
-            if (SystemHotKey.RegHotKey(this.Handle, 7002, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Stop_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Stop_Main.Text)))
-            {
-                ConfigInfo.UpdateAppConfig("StopHotKey", cmb_Stop_Shift.Text + '+' + cmb_Stop_Main.Text);
-            }
-            else
-            {
-                strs = ConfigInfo.StopHotKey.Split('+');
-                cmb_Stop_Shift.SelectedItem = strs[0];
-                cmb_Stop_Main.SelectedItem = strs[1];
-            }
-            if (SystemHotKey.RegHotKey(this.Handle, 7003, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Start_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Start_Main.Text)))
-            {
-                ConfigInfo.UpdateAppConfig("RecordHotKey", cmb_Start_Shift.Text + '+' + cmb_Start_Main.Text);
-            }
-            else
-            {
-                strs = ConfigInfo.RecordHotKey.Split('+');
-                cmb_Start_Shift.SelectedItem = strs[0];
-                cmb_Start_Main.SelectedItem = strs[1];
-            }
-            if (SystemHotKey.RegHotKey(this.Handle, 7004, (EnumClass.KeyModifiers)Enum.Parse(typeof(EnumClass.KeyModifiers), cmb_Resize_Shift.Text), (Keys)Enum.Parse(typeof(Keys), cmb_Resize_Main.Text)))
-            {
-                ConfigInfo.UpdateAppConfig("ShowHideHotKey", cmb_Resize_Shift.Text + '+' + cmb_Resize_Main.Text);
-            }
-            else
-            {
-                strs = ConfigInfo.ShowHideHotKey.Split('+');
-                cmb_Resize_Shift.SelectedItem = strs[0];
-                cmb_Resize_Main.SelectedItem = strs[1];
-            }
+
+            dgv_KeyTextPair.DataSource = dicKeyText.ToArray();
+            dgv_KeyTextPair.Columns["Key"].HeaderText = "接收按键";
+            dgv_KeyTextPair.Columns["Value"].HeaderText = "输出文本";
         }
         #endregion
-        #region 显示脚本构成的代码
+        #region 删除
         /// <summary>
-        /// 显示脚本构成的代码
+        /// 删除
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btn_ShowCode_Click(object sender, EventArgs e)
+        private void btn_Delete_e_Click(object sender, EventArgs e)
         {
-
+            if (dgv_KeyTextPair.SelectedRows.Count < 0)
+            {
+                return;
+            }
+            string selectStr = dgv_KeyTextPair.SelectedRows[0].Cells[0].Value.ToString();
+            dicKeyText.Remove(selectStr);
+            SystemHotKey.UnRegHotKey(this.Handle, dicHotKeyId[selectStr]);
+            dicHotKeyId.Remove(selectStr);
+            dgv_KeyTextPair.DataSource = dicKeyText.ToArray();
+            dgv_KeyTextPair.Columns["Key"].HeaderText = "接收按键";
+            dgv_KeyTextPair.Columns["Value"].HeaderText = "输出文本";
         }
         #endregion
+        #region 单元格点击
+        /// <summary>
+        /// 单元格点击
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dgv_KeyTextPair_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            string[] strarr = dgv_KeyTextPair.Rows[e.RowIndex].Cells[0].Value.ToString().Split('+');
+            cmb_RecvKey_Shift.Text = strarr[0];
+            cmb_RecvKey_Main.Text = strarr[1];
+            txt_PrintText_e.Text = dgv_KeyTextPair.Rows[e.RowIndex].Cells[1].Value.ToString();
+        }
+        #endregion
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetDataObject(dicInvoke.GenerateCodeCPlus(txt_Details_c.Text.Trim("\r\n").Trim()));
+            MessageBox.Show("C++代码已复制到剪切板中。");
+        }
         #endregion
     }
 }
