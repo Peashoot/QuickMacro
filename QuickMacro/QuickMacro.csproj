@@ -51,10 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="ConfigInfo.cs" />
     <Compile Include="DynamicInvoke.cs" />
     <Compile Include="EnumClass.cs" />
+    <Compile Include="HideOnStartupApplicationContext.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="LocalScript.cs" />
     <Compile Include="SimpleQuickMacro.cs">

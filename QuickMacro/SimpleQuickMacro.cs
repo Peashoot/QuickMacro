@@ -15,7 +15,28 @@ namespace QuickMacro
         public SimpleQuickMacro()
         {
             InitializeComponent();
+            try
+            {
+                ConfigInfo.StartShow = Convert.ToBoolean(ConfigInfo.Get_ConfigValue("StartShow")[0]);
+            }
+            catch
+            {
+                ConfigInfo.StartShow = false;
+                ConfigInfo.UpdateAppConfig("StartShow", ConfigInfo.StartShow.ToString());
+            }
         }
+        ///// <summary>
+        ///// 修改窗体的类名
+        ///// </summary>
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams createParams = base.CreateParams;
+        //        createParams.ClassName = "SimpleQuickMacrByW";
+        //        return createParams;
+        //    }
+        //}
 
         #region 成员变量
         /// <summary>
@@ -54,6 +75,14 @@ namespace QuickMacro
         /// 热键ID
         /// </summary>
         int hotKeyId;
+        /// <summary>
+        /// 自定义事件ID
+        /// </summary>
+        public const int WM_USER = 0x0400;
+        /// <summary>
+        /// 窗体是否加载
+        /// </summary>
+        bool isLoaded = false;
         #endregion
         #region 总的
         #region 窗体加载
@@ -64,6 +93,7 @@ namespace QuickMacro
         /// <param name="e"></param>
         private void SimpleQuickMacro_Load(object sender, EventArgs e)
         {
+            isLoaded = true;
             hotKeyId = 7010;
             localScript.ReadScript();
             initPage_Set();
@@ -88,15 +118,18 @@ namespace QuickMacro
             }
         }
         #endregion
-        #region 捕获键盘事件
+        #region 处理Windows消息
         /// <summary>
-        /// 捕获键盘事件
+        /// 处理热键消息
         /// </summary>
         /// <param name="m"></param>
         protected override void WndProc(ref Message m)
         {
             switch (m.Msg)
             {
+                case (WM_USER + 1):
+                    ShowForm();
+                    break;
                 case 0x0312:    //这个是window消息定义的注册的热键消息
                     switch (m.WParam.ToString())
                     {
@@ -132,6 +165,22 @@ namespace QuickMacro
                     break;
             }
             base.WndProc(ref m);
+        }
+        /// <summary>
+        /// 处理自定义消息
+        /// </summary>
+        /// <param name="m"></param>
+        protected override void DefWndProc(ref System.Windows.Forms.Message m)
+        {
+            switch (m.Msg)
+            {
+                case (WM_USER + 1):
+                    ShowForm();
+                    break;
+                default:
+                    base.DefWndProc(ref m);//一定要调用基类函数，以便系统处理其它消息。
+                    break;
+            }
         }
         #endregion
         #region 选项卡选择变更
@@ -169,7 +218,8 @@ namespace QuickMacro
         {
             if (this.WindowState == FormWindowState.Minimized)
             {
-                this.Visible = false;//隐藏窗体
+                this.ShowInTaskbar = false;
+                this.Hide();//隐藏窗体
                 this.notifyIcon.Visible = true;//显示托盘图标   
             }
         }
@@ -178,9 +228,10 @@ namespace QuickMacro
         /// </summary>
         private void ShowForm()
         {
-            this.Visible = true;//隐藏窗体
-            this.WindowState = FormWindowState.Normal;
+            this.Show();//隐藏窗体
             this.notifyIcon.Visible = false;//显示托盘图标
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
         }
         /// <summary>
         /// 隐藏窗体
@@ -230,8 +281,15 @@ namespace QuickMacro
         /// <param name="e"></param>
         private void btn_Quit_Click(object sender, EventArgs e)
         {
-            UnRegHotKeys();
-            this.Close();
+            if (isLoaded)
+            {
+                UnRegHotKeys();
+                this.Close();
+            }
+            else
+            {
+                Application.Exit();
+            }
         }
         /// <summary>
         /// 窗口关闭
@@ -616,7 +674,6 @@ namespace QuickMacro
             txt_PrintText_e.Text = dgv_KeyTextPair.Rows[e.RowIndex].Cells[1].Value.ToString();
         }
         #endregion
-
         private void button2_Click(object sender, EventArgs e)
         {
             Clipboard.SetDataObject(dicInvoke.GenerateCodeCPlus(txt_Details_c.Text.Trim("\r\n").Trim()));

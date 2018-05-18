@@ -23,6 +23,7 @@ namespace QuickMacro
         /// </summary>
         public List<ScriptClass> scriptList = new List<ScriptClass>();
         #endregion
+        #region 读取Script的TXT文件
         /// <summary>
         /// 读取Script的TXT文件
         /// </summary>
@@ -90,6 +91,8 @@ namespace QuickMacro
                 #endregion
             }
         }
+        #endregion
+        #region 写入Script的TXT文件
         /// <summary>
         /// 写入Script的TXT文件
         /// </summary>
@@ -125,16 +128,31 @@ namespace QuickMacro
                 throw;
             }
         }
+        #endregion
     }
 
     public class ScriptClass
     {
+        /// <summary>
+        /// 脚本名称
+        /// </summary>
         public string ScriptName;
+        /// <summary>
+        /// 脚本内容
+        /// </summary>
         public string Details;
     }
 
     static class Extend
     {
+        #region StringBuilder扩展
+        /// <summary>
+        /// + num个"\t" + str
+        /// </summary>
+        /// <param name="strapp"></param>
+        /// <param name="num"></param>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static StringBuilder Append(this StringBuilder strapp, int num, string str)
         {
             try
@@ -151,7 +169,11 @@ namespace QuickMacro
                 throw;
             }
         }
-
+        /// <summary>
+        /// + "\r\n"
+        /// </summary>
+        /// <param name="strapp"></param>
+        /// <returns></returns>
         public static StringBuilder AppendEx(this StringBuilder strapp)
         {
             try
@@ -163,7 +185,12 @@ namespace QuickMacro
                 throw;
             }
         }
-
+        /// <summary>
+        /// + "str" + "\r\n"
+        /// </summary>
+        /// <param name="strapp"></param>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static StringBuilder AppendEx(this StringBuilder strapp, string str)
         {
             try
@@ -175,7 +202,13 @@ namespace QuickMacro
                 throw;
             }
         }
-
+        /// <summary>
+        /// + num个"\t" + str + "\r\n"
+        /// </summary>
+        /// <param name="strapp"></param>
+        /// <param name="num"></param>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static StringBuilder AppendEx(this StringBuilder strapp,int num, string str)
         {
             try
@@ -192,7 +225,14 @@ namespace QuickMacro
                 throw;
             }
         }
-
+        #endregion
+        #region 去除字符串首尾的字符串
+        /// <summary>
+        /// 去除字符串首尾的字符串
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="trim"></param>
+        /// <returns></returns>
         public static string Trim(this string str, string trim)
         {
             try
@@ -212,7 +252,14 @@ namespace QuickMacro
                 throw;
             }
         }
-
+        #endregion
+        #region 根据Value获取字典中的Key
+        /// <summary>
+        /// 根据Value获取字典中的Key
+        /// </summary>
+        /// <param name="dic"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static string GetKey(this Dictionary<string, int> dic, int obj)
         {
             string ret = "";
@@ -226,5 +273,6 @@ namespace QuickMacro
             }
             return ret;
         }
+        #endregion
     }
 }

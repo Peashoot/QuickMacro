@@ -30,6 +30,10 @@ namespace QuickMacro
         /// 上一次使用的脚本名称
         /// </summary>
         public static string LastUseScript;
+        /// <summary>
+        /// 开始是否显示界面
+        /// </summary>
+        public static bool StartShow;
         #endregion
         #region 获取配置
         /// <summary>

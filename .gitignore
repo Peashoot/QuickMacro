@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 *.suo
+*.opensdf
 
 # Compiled Object files
 *.slo

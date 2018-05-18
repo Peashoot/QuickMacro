@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace QuickMacro
 {
@@ -84,6 +85,7 @@ namespace QuickMacro
             {
                 scriptStart.Invoke(objExecute, null);
                 threadRunning = true;
+                System.Media.SystemSounds.Exclamation.Play();
             }
             else
             {
@@ -101,6 +103,7 @@ namespace QuickMacro
             {
                 scriptEnd.Invoke(objExecute, null);
                 threadRunning = false;
+                System.Media.SystemSounds.Question.Play();
             }
             else
             {
