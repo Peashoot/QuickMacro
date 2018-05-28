@@ -1,0 +1,4 @@
+E:\TryToFindAnswer\QuickMacro\Model\bin\Debug\Model.dll
+E:\TryToFindAnswer\QuickMacro\Model\bin\Debug\Model.pdb
+E:\TryToFindAnswer\QuickMacro\Model\obj\Debug\Model.dll
+E:\TryToFindAnswer\QuickMacro\Model\obj\Debug\Model.pdb

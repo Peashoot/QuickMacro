@@ -18,19 +18,19 @@ namespace QuickMacro
         /// <summary>
         /// 类实例对象
         /// </summary>
-        static object objExecute = null;
+        object objExecute = null;
         /// <summary>
         /// 开始线程方法
         /// </summary>
-        static MethodInfo scriptStart = null;
+        MethodInfo scriptStart = null;
         /// <summary>
         /// 结束线程方法
         /// </summary>
-        static MethodInfo scriptEnd = null;
+        MethodInfo scriptEnd = null;
         /// <summary>
         /// 线程正在执行
         /// </summary>
-        static bool threadRunning = false;
+        public bool threadRunning = false;
         #endregion
         #region 对生成的代码进行编译
         /// <summary>

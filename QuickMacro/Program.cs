@@ -36,6 +36,8 @@ namespace QuickMacro
                 HandleRunningInstance(instance);
                 return;
             }
+            //LoadResourceDll.RegistDLL();
+            new SQLiteCreate().BuildDataBase();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new SimpleQuickMacro());

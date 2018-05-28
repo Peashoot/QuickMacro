@@ -1,0 +1,13 @@
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\BLL.dll
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\BLL.pdb
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\DAL.dll
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\DBUtility.dll
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\Model.dll
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\System.Data.SQLite.dll
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\MySql.Data.dll
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\DAL.pdb
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\DBUtility.pdb
+E:\TryToFindAnswer\QuickMacro\BLL\bin\Debug\Model.pdb
+E:\TryToFindAnswer\QuickMacro\BLL\obj\Debug\BLL.csprojResolveAssemblyReference.cache
+E:\TryToFindAnswer\QuickMacro\BLL\obj\Debug\BLL.dll
+E:\TryToFindAnswer\QuickMacro\BLL\obj\Debug\BLL.pdb

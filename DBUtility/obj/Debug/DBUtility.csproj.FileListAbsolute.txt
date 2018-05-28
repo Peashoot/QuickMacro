@@ -1,0 +1,11 @@
+E:\TryToFindAnswer\SearchDataBase\DBUtility\bin\Debug\DBUtility.dll
+E:\TryToFindAnswer\SearchDataBase\DBUtility\bin\Debug\DBUtility.pdb
+E:\TryToFindAnswer\SearchDataBase\DBUtility\bin\Debug\MySql.Data.dll
+E:\TryToFindAnswer\SearchDataBase\DBUtility\bin\Debug\System.Data.SQLite.DLL
+E:\TryToFindAnswer\SearchDataBase\DBUtility\obj\Debug\DBUtility.dll
+E:\TryToFindAnswer\SearchDataBase\DBUtility\obj\Debug\DBUtility.pdb
+E:\TryToFindAnswer\SearchDataBase\DBUtility\obj\Debug\DBUtility.csprojResolveAssemblyReference.cache
+E:\TryToFindAnswer\QuickMacro\DBUtility\bin\Debug\DBUtility.dll
+E:\TryToFindAnswer\QuickMacro\DBUtility\bin\Debug\DBUtility.pdb
+E:\TryToFindAnswer\QuickMacro\DBUtility\obj\Debug\DBUtility.dll
+E:\TryToFindAnswer\QuickMacro\DBUtility\obj\Debug\DBUtility.pdb
